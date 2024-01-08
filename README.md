@@ -64,3 +64,23 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
+
+
+----------------------------------------------------
+# Myriad: Democratising Governance and Medical System
+
+## Features / Requirements
+
+### Primary Features
+
+- Features of MediChain
+- DAO integration
+- Chatbot integration (either MedPaLM or ChatGPT - best --> ChatGPT / MedPaLM 2) - can export the conversation details.
+- A way to interact with the doctor's directly if they want (via chats / calling)
+
+### Secondary Features
+- a payment infrastructure (both via web3 way and fiat way - payment infrastructure — who determines the cost: cost of consultation is determined initially and the patient has to pay to the escrow account and the patient releases the money upon consultation. both can report each other in case of anything suspicious)
+
+## Side Note:
+- not completely replacing the existing system but working towards a solution in that direction - some common of regular checkups can be replaced by this. online consultation - doctors can decide if they want to examine the patients physically (a way to pass info to doctors before going to checkup)
+- This is a complimentary system and is designed to work with the existing system and I am trying to remove as much as possible problems in the existing systems.
