@@ -6,8 +6,17 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-- test
+  - test
 sast:
   stage: test
 include:
-- template: Security/SAST.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+
+image: ghcr.io/foundry-rs/foundry:latest
+
+test:
+  stage: test
+  script:
+    - forge --version
+    - forge build --sizes
+    - forge test -vvv
