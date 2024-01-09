@@ -7,7 +7,7 @@ pragma solidity ^0.8.7;
 /// @dev All function calls are currently implemented without side effects
 
 //imports
-// import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 
 
@@ -21,9 +21,9 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
     //Type Declaration
 
     //Storage Variables
-    mapping(address => PatientType.Patient) private s_patients;
-    mapping(address => DoctorType.Doctor) private s_doctors;
-    mapping(address => HospitalType.Hospital) private s_hospitals;
+    mapping(address => DataTypes.PatientStruct) private s_patients;
+    mapping(address => DataTypes.DoctorStruct) private s_doctors;
+    mapping(address => DataTypes.HospitalStruct) private s_hospitals;
     mapping(address => string) private s_addressToPublicKey;
 
     address private immutable i_owner;
@@ -94,7 +94,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         if (msg.sender != _patientAddress) {
             revert PatientMedicalRecords__NotPatient();
         }
-        PatientType.Patient memory patient;
+        DataTypes.PatientStruct memory patient;
         patient.name = _name;
         patient.patientAddress = _patientAddress;
         patient.dob = _dob;
@@ -142,7 +142,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         } else if (_category == 3) {
             s_patients[_patientAddress].acuteHash.push(_IpfsHash);
         }
-        PatientType.Patient memory patient = s_patients[_patientAddress];
+        DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
         //emitting the event.
         emit AddedPatient(
             _patientAddress,
@@ -168,7 +168,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         string memory _specialization,
         address _hospitalAddress
     ) external onlyOwner nonReentrant {
-        DoctorType.Doctor memory doctor;
+        DataTypes.DoctorStruct memory doctor;
         doctor.name = _name;
         doctor.doctorRegistrationId = _doctorRegistrationId;
         doctor.doctorAddress = _doctorAddress;
@@ -195,7 +195,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         string memory _email,
         string memory _phoneNumber
     ) external onlyOwner nonReentrant {
-        HospitalType.Hospital memory hospital = s_hospitals[_hospitalAddress];
+        DataTypes.HospitalStruct memory hospital = s_hospitals[_hospitalAddress];
         hospital.hospitalAddress = _hospitalAddress;
         hospital.name = _name;
         hospital.email = _email;
@@ -214,7 +214,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         );
     }
 
-    function getMyDetails() external view returns (PatientType.Patient memory) {
+    function getMyDetails() external view returns (DataTypes.PatientStruct memory) {
         return s_patients[msg.sender];
     }
 
