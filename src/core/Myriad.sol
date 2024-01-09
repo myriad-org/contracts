@@ -1,25 +1,20 @@
-// SPDX-License-Identifier: GPL-3.0-only	
+// SPDX-License-Identifier: GPL-3.0-only
 
 pragma solidity ^0.8.7;
 
 /// @title A smart contract supporting the Decentralized Patient Medical Record System
-/// @author Aditya Kumar Singh @ May 2023
+/// @author Aditya Kumar Singh @ January 2024
 /// @dev All function calls are currently implemented without side effects
 
 //imports
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-
+import {Errors} from "../libraries/Errors.sol";
+import {Events} from "../libraries/Events.sol";
 
 //custom errors
-error PatientMedicalRecords__NotOwner();
-error PatientMedicalRecords__NotDoctor();
-error PatientMedicalRecords__NotApproved();
-error PatientMedicalRecords__NotPatient();
 
-contract PatientMedicalRecordSystem is ReentrancyGuard {
-    //Type Declaration
-
+contract Myriad is ReentrancyGuard {
     //Storage Variables
     mapping(address => DataTypes.PatientStruct) private s_patients;
     mapping(address => DataTypes.DoctorStruct) private s_doctors;
@@ -29,50 +24,18 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
     address private immutable i_owner;
 
     //Events
-    event AddedPatient(
-        address indexed patientAddress,
-        string name,
-        string[] chronicHash,
-        uint256 indexed dob,
-        string bloodGroup,
-        uint256 indexed dateOfRegistration,
-        string publicKey,
-        string[] vaccinationHash,
-        string phoneNumber,
-        string[] accidentHash,
-        string[] acuteHash
-    ); //added or modified
-
-    event AddedPublicKey(address indexed patientAddress, string publicKey); //emitting when public key is added.
-
-    event AddedDoctor(
-        address indexed doctorAddress,
-        string name,
-        string doctorRegistrationId,
-        uint256 indexed dateOfRegistration,
-        string specialization,
-        address indexed hospitalAddress
-    ); //added or modified to the mapping
-    event AddedHospital(
-        address indexed hospitalAddress,
-        string name,
-        string hospitalRegistrationId,
-        uint256 indexed dateOfRegistration,
-        string email,
-        string phoneNumber
-    ); //added(mostly) or modified
 
     //modifiers
     modifier onlyOwner() {
         if (msg.sender != i_owner) {
-            revert PatientMedicalRecords__NotOwner();
+            revert Errors.Myriad__NotOwner();
         }
         _;
     }
 
     modifier onlyDoctor(address senderAddress) {
         if (s_doctors[senderAddress].doctorAddress != senderAddress) {
-            revert PatientMedicalRecords__NotDoctor();
+            revert Errors.Myriad__NotDoctor();
         }
         _;
     }
@@ -92,7 +55,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         string memory _publicKey
     ) external nonReentrant {
         if (msg.sender != _patientAddress) {
-            revert PatientMedicalRecords__NotPatient();
+            revert Errors.Myriad__NotPatient();
         }
         DataTypes.PatientStruct memory patient;
         patient.name = _name;
@@ -112,8 +75,8 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         s_addressToPublicKey[_patientAddress] = _publicKey;
 
         //emiting the events
-        emit AddedPublicKey(_patientAddress, _publicKey);
-        emit AddedPatient(
+        emit Events.PublicKeyListed(_patientAddress, _publicKey);
+        emit Events.PatientListed(
             _patientAddress,
             patient.name,
             patient.chronicHash,
@@ -144,7 +107,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         }
         DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
         //emitting the event.
-        emit AddedPatient(
+        emit Events.PatientListed(
             _patientAddress,
             patient.name,
             patient.chronicHash,
@@ -177,7 +140,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         doctor.hospitalAddress = _hospitalAddress;
         s_doctors[_doctorAddress] = doctor;
         //emitting the event.
-        emit AddedDoctor(
+        emit Events.DoctorListed(
             _doctorAddress,
             doctor.name,
             doctor.doctorRegistrationId,
@@ -195,7 +158,9 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         string memory _email,
         string memory _phoneNumber
     ) external onlyOwner nonReentrant {
-        DataTypes.HospitalStruct memory hospital = s_hospitals[_hospitalAddress];
+        DataTypes.HospitalStruct memory hospital = s_hospitals[
+            _hospitalAddress
+        ];
         hospital.hospitalAddress = _hospitalAddress;
         hospital.name = _name;
         hospital.email = _email;
@@ -204,7 +169,7 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         hospital.dateOfRegistration = block.timestamp;
         s_hospitals[_hospitalAddress] = hospital;
         //emitting the event.
-        emit AddedHospital(
+        emit Events.HospitalListed(
             hospital.hospitalAddress,
             hospital.name,
             hospital.hospitalRegistrationId,
@@ -214,20 +179,18 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         );
     }
 
-    function getMyDetails() external view returns (DataTypes.PatientStruct memory) {
+    function getMyDetails()
+        external
+        view
+        returns (DataTypes.PatientStruct memory)
+    {
         return s_patients[msg.sender];
     }
 
     //authorized doctor viewing patient's records
-    function getPatientDetails(address _patientAddress)
-        external
-        view
-        returns (
-            string memory,
-            string memory,
-            uint256
-        )
-    {
+    function getPatientDetails(
+        address _patientAddress
+    ) external view returns (string memory, string memory, uint256) {
         return (
             s_patients[_patientAddress].name,
             s_patients[_patientAddress].publicKey,
@@ -235,19 +198,18 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         );
     }
 
-    function getPublicKey(address _patientAddress) public view returns (string memory) {
+    function getPublicKey(
+        address _patientAddress
+    ) public view returns (string memory) {
         return s_addressToPublicKey[_patientAddress];
     }
 
-    function getDoctorDetails(address _doctorAddress)
+    function getDoctorDetails(
+        address _doctorAddress
+    )
         external
         view
-        returns (
-            string memory,
-            string memory,
-            string memory,
-            address
-        )
+        returns (string memory, string memory, string memory, address)
     {
         return (
             s_doctors[_doctorAddress].name,
@@ -257,15 +219,9 @@ contract PatientMedicalRecordSystem is ReentrancyGuard {
         );
     }
 
-    function getHospitalDetails(address _hospitalAddress)
-        external
-        view
-        returns (
-            string memory,
-            string memory,
-            string memory
-        )
-    {
+    function getHospitalDetails(
+        address _hospitalAddress
+    ) external view returns (string memory, string memory, string memory) {
         return (
             s_hospitals[_hospitalAddress].name,
             s_hospitals[_hospitalAddress].hospitalRegistrationId,

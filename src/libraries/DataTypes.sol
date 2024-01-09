@@ -19,7 +19,7 @@ library DataTypes {
         string[] acuteHash; //3
     }
 
-    struct HospitalStruct{
+    struct HospitalStruct {
         string name;
         address hospitalAddress; //account address of hospital
         uint256 dateOfRegistration;
@@ -35,5 +35,23 @@ library DataTypes {
         uint256 dateOfRegistration;
         string specialization;
         address hospitalAddress;
+    }
+
+    struct DiagnosticLabStruct {
+        address diagnosticLabAddress; //account address of diagnostic
+        string name;
+        string diagnosticLabRegistrationId; //NMC Regsitration Id
+        uint256 dateOfRegistration;
+        string email;
+        string phoneNumber;
+    }
+    
+    struct ClinicStruct {
+        address clinicAddress; //account address of clinic
+        string name;
+        string clinicRegistrationId; //NMC Regsitration Id
+        uint256 dateOfRegistration;
+        string email;
+        string phoneNumber;
     }
 }
