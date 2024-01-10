@@ -105,7 +105,6 @@ contract Myriad is ReentrancyGuard {
         address _doctorAddress,
         string memory _name,
         string memory _doctorRegistrationId,
-        uint256 _dateOfRegistration,
         string memory _specialization,
         address _hospitalAddress
     ) external onlyOwner nonReentrant {
@@ -114,7 +113,7 @@ contract Myriad is ReentrancyGuard {
             _doctorAddress,
             _name,
             _doctorRegistrationId,
-            _dateOfRegistration,
+            block.timestamp,
             _specialization,
             _hospitalAddress
         );
