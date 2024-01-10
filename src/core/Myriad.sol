@@ -199,7 +199,7 @@ contract Myriad is ReentrancyGuard {
         //emitting the event.
         emit Events.DiagnosticLabListed(diagnosticLab);
     }
-    
+
     function getMyDetails()
         external
         view

@@ -11,6 +11,8 @@ import {Events} from "src/libraries/Events.sol";
  * Patient Address: starts from 1
  * Doctor Address: starts from 11
  * Hospital Address: starts from 21
+ * Diagnostic Lab Address: starts from 31
+ * Clinic Address: starts from 41
  */
 
 contract MyriadTest is Test {
@@ -166,10 +168,43 @@ contract MyriadTest is Test {
         );
     }
 
-    // Add Patient Details:
+    // Add Patient Details: All the tests are independent and they should have no dependency on each other. 
     address patientAddress = samplePatient.patientAddress;
     uint16 category = 0;
     string ipfsHash = "qmazkcwaekwedrtnvfhrxabyewtjdxhnjpl1uykybe5zab";
 
-    // function test_RevertPatientDetailsCannotBeAdded() external {}
+    function test_RevertPatientDetailsCannotBeAdded() external {
+        // Register Patient
+        vm.startPrank(address(0x1));
+        myriad.registerPatient(
+            samplePatient.patientAddress,
+            samplePatient.name,
+            samplePatient.dob,
+            samplePatient.phoneNumber,
+            samplePatient.bloodGroup,
+            samplePatient.publicKey
+        );
+        vm.stopPrank();
+
+        // Register Doctor
+        myriad.addDoctorDetails(
+            sampleDoctor.doctorAddress,
+            sampleDoctor.name,
+            sampleDoctor.doctorRegistrationId,
+            sampleDoctor.specialization,
+            sampleDoctor.hospitalAddress
+        );
+
+        samplePatient.vaccinationHash.push(ipfsHash); // storage variables can only be modified inside a function (as it costs gas and someone has to pay for it.)
+
+        // Doctor adding patient details
+        vm.startPrank(address(0x11));
+
+        vm.expectEmit(true, true, true, true);
+        emit Events.PatientListed(samplePatient);
+
+        myriad.addPatientDetails(patientAddress, category, ipfsHash); // adding details to samplePatient
+
+        vm.stopPrank();
+    }
 }
