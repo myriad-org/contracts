@@ -19,11 +19,11 @@ contract Myriad is ReentrancyGuard {
     mapping(address => DataTypes.PatientStruct) private s_patients;
     mapping(address => DataTypes.DoctorStruct) private s_doctors;
     mapping(address => DataTypes.HospitalStruct) private s_hospitals;
+    mapping(address => DataTypes.ClinicStruct) private s_clinic;
+    mapping(address => DataTypes.DiagnosticLabStruct) private s_diagnosticLab;
     mapping(address => string) private s_addressToPublicKey;
 
     address private immutable i_owner;
-
-    //Events
 
     //modifiers
     modifier onlyOwner() {
@@ -57,38 +57,28 @@ contract Myriad is ReentrancyGuard {
         if (msg.sender != _patientAddress) {
             revert Errors.Myriad__NotPatient();
         }
-        DataTypes.PatientStruct memory patient;
-        patient.name = _name;
-        patient.patientAddress = _patientAddress;
-        patient.dob = _dob;
-        patient.phoneNumber = _phoneNumber;
-        patient.bloodGroup = _bloodGroup;
-        patient.dateOfRegistration = block.timestamp;
-        patient.publicKey = _publicKey; //public key is stored here.
 
-        patient.vaccinationHash = new string[](0); //0
-        patient.accidentHash = new string[](0); // 1
-        patient.chronicHash = new string[](0); //2
-        patient.acuteHash = new string[](0); //3
+        DataTypes.PatientStruct memory patient;
+        patient = DataTypes.PatientStruct(
+            _name,
+            _patientAddress,
+            _dob,
+            _phoneNumber,
+            _bloodGroup,
+            _publicKey,
+            block.timestamp, //date of registration
+            new string[](0), //0
+            new string[](0), // 1
+            new string[](0), //2
+            new string[](0) //3
+        );
 
         s_patients[_patientAddress] = patient;
         s_addressToPublicKey[_patientAddress] = _publicKey;
 
         //emiting the events
         emit Events.PublicKeyListed(_patientAddress, _publicKey);
-        emit Events.PatientListed(
-            _patientAddress,
-            patient.name,
-            patient.chronicHash,
-            patient.dob,
-            patient.bloodGroup,
-            patient.dateOfRegistration,
-            patient.publicKey,
-            patient.vaccinationHash,
-            patient.phoneNumber,
-            patient.accidentHash,
-            patient.acuteHash
-        );
+        emit Events.PatientListed(patient);
     }
 
     function addPatientDetails(
@@ -105,21 +95,9 @@ contract Myriad is ReentrancyGuard {
         } else if (_category == 3) {
             s_patients[_patientAddress].acuteHash.push(_IpfsHash);
         }
-        DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
+
         //emitting the event.
-        emit Events.PatientListed(
-            _patientAddress,
-            patient.name,
-            patient.chronicHash,
-            patient.dob,
-            patient.bloodGroup,
-            patient.dateOfRegistration,
-            patient.publicKey,
-            patient.vaccinationHash,
-            patient.phoneNumber,
-            patient.accidentHash,
-            patient.acuteHash
-        );
+        emit Events.PatientListed(s_patients[_patientAddress]);
     }
 
     //this will be done using script by the owner
@@ -131,23 +109,20 @@ contract Myriad is ReentrancyGuard {
         string memory _specialization,
         address _hospitalAddress
     ) external onlyOwner nonReentrant {
-        DataTypes.DoctorStruct memory doctor;
-        doctor.name = _name;
-        doctor.doctorRegistrationId = _doctorRegistrationId;
-        doctor.doctorAddress = _doctorAddress;
-        doctor.dateOfRegistration = _dateOfRegistration;
-        doctor.specialization = _specialization;
-        doctor.hospitalAddress = _hospitalAddress;
-        s_doctors[_doctorAddress] = doctor;
-        //emitting the event.
-        emit Events.DoctorListed(
+        DataTypes.DoctorStruct memory doctor = s_doctors[_doctorAddress];
+        doctor = DataTypes.DoctorStruct(
             _doctorAddress,
-            doctor.name,
-            doctor.doctorRegistrationId,
-            doctor.dateOfRegistration,
-            doctor.specialization,
-            doctor.hospitalAddress
+            _name,
+            _doctorRegistrationId,
+            _dateOfRegistration,
+            _specialization,
+            _hospitalAddress
         );
+
+        s_doctors[_doctorAddress] = doctor;
+
+        //emitting the event.
+        emit Events.DoctorListed(doctor);
     }
 
     //this will be done using script by the owner
@@ -161,22 +136,69 @@ contract Myriad is ReentrancyGuard {
         DataTypes.HospitalStruct memory hospital = s_hospitals[
             _hospitalAddress
         ];
-        hospital.hospitalAddress = _hospitalAddress;
-        hospital.name = _name;
-        hospital.email = _email;
-        hospital.phoneNumber = _phoneNumber;
-        hospital.hospitalRegistrationId = _hospitalRegistrationId;
-        hospital.dateOfRegistration = block.timestamp;
-        s_hospitals[_hospitalAddress] = hospital;
-        //emitting the event.
-        emit Events.HospitalListed(
-            hospital.hospitalAddress,
-            hospital.name,
-            hospital.hospitalRegistrationId,
-            hospital.dateOfRegistration,
-            hospital.email,
-            hospital.phoneNumber
+        hospital = DataTypes.HospitalStruct(
+            _name,
+            _hospitalAddress,
+            block.timestamp,
+            _hospitalRegistrationId,
+            _email,
+            _phoneNumber
         );
+
+        s_hospitals[_hospitalAddress] = hospital;
+
+        //emitting the event.
+        emit Events.HospitalListed(hospital);
+    }
+
+    //this will be done using script by the owner
+    function addClinicDetails(
+        address _clinicAddress,
+        string memory _name,
+        string memory _clinicRegistrationId,
+        string memory _email,
+        string memory _phoneNumber
+    ) external onlyOwner nonReentrant {
+        DataTypes.ClinicStruct memory clinic = s_clinic[_clinicAddress];
+        clinic = DataTypes.ClinicStruct(
+            _clinicAddress,
+            _name,
+            _clinicRegistrationId,
+            block.timestamp,
+            _email,
+            _phoneNumber
+        );
+
+        s_clinic[_clinicAddress] = clinic;
+
+        //emitting the event.
+        emit Events.ClinicListed(clinic);
+    }
+
+    //this will be done using script by the owner
+    function addDiagnosticLabDetails(
+        address _diagnosticLabAddress,
+        string memory _name,
+        string memory _diagnosticLabRegistrationId,
+        string memory _email,
+        string memory _phoneNumber
+    ) external onlyOwner nonReentrant {
+        DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[
+            _diagnosticLabAddress
+        ];
+        diagnosticLab = DataTypes.DiagnosticLabStruct(
+            _diagnosticLabAddress,
+            _name,
+            _diagnosticLabRegistrationId,
+            block.timestamp,
+            _email,
+            _phoneNumber
+        );
+
+        s_diagnosticLab[_diagnosticLabAddress] = diagnosticLab;
+
+        //emitting the event.
+        emit Events.DiagnosticLabListed(diagnosticLab);
     }
 
     function getMyDetails()
