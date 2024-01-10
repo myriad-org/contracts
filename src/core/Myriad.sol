@@ -200,7 +200,7 @@ contract Myriad is ReentrancyGuard {
         //emitting the event.
         emit Events.DiagnosticLabListed(diagnosticLab);
     }
-
+    
     function getMyDetails()
         external
         view
@@ -248,6 +248,26 @@ contract Myriad is ReentrancyGuard {
             s_hospitals[_hospitalAddress].name,
             s_hospitals[_hospitalAddress].hospitalRegistrationId,
             s_hospitals[_hospitalAddress].email
+        );
+    }
+
+    function getClinicDetails(
+        address _clinicAddress
+    ) external view returns (string memory, string memory, string memory) {
+        return (
+            s_clinic[_clinicAddress].name,
+            s_clinic[_clinicAddress].clinicRegistrationId,
+            s_clinic[_clinicAddress].email
+        );
+    }
+
+    function getDiagnosticLabDetails(
+        address _diagnosticLabAddress
+    ) external view returns (string memory, string memory, string memory) {
+        return (
+            s_diagnosticLab[_diagnosticLabAddress].name,
+            s_diagnosticLab[_diagnosticLabAddress].diagnosticLabRegistrationId,
+            s_diagnosticLab[_diagnosticLabAddress].email
         );
     }
 

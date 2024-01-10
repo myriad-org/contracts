@@ -73,7 +73,7 @@ $ cast --help
 
 ### Primary Features
 
-- Features of MediChain
+- Features of MediChain -- done
 - DAO integration
 - Chatbot integration (either MedPaLM or ChatGPT - best --> ChatGPT / MedPaLM 2) - can export the conversation details.
 - A way to interact with the doctor's directly if they want (via chats / calling)
