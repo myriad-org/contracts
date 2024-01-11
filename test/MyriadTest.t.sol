@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.7;
 
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Test, console} from "forge-std/Test.sol";
 import {Myriad} from "src/core/Myriad.sol";
 import {DataTypes} from "src/libraries/DataTypes.sol";
@@ -16,10 +17,14 @@ import {Events} from "src/libraries/Events.sol";
  */
 
 contract MyriadTest is Test {
-    Myriad myriad;
+    // Myriad myriad;
+    // ERC1967Proxy proxy;
+    address proxy;
 
     function setUp() external {
-        myriad = new Myriad();
+        Myriad myriad = new Myriad();
+        proxy = address(new ERC1967Proxy(address(myriad), ""));
+        Myriad(proxy).initialize();
     }
 
     // Patient Registration
@@ -52,7 +57,7 @@ contract MyriadTest is Test {
 
         emit Events.PatientListed(samplePatient);
 
-        myriad.registerPatient(
+        Myriad(proxy).registerPatient(
             samplePatient.patientAddress,
             samplePatient.name,
             samplePatient.dob,
@@ -81,7 +86,7 @@ contract MyriadTest is Test {
 
         emit Events.DoctorListed(sampleDoctor);
 
-        myriad.addDoctorDetails(
+        Myriad(proxy).addDoctorDetails(
             sampleDoctor.doctorAddress,
             sampleDoctor.name,
             sampleDoctor.doctorRegistrationId,
@@ -104,10 +109,9 @@ contract MyriadTest is Test {
 
     function test_RevertHospitalCannotBeAdded() external {
         vm.expectEmit(true, true, true, true);
-
         emit Events.HospitalListed(sampleHospital);
 
-        myriad.addHospitalDetails(
+        Myriad(proxy).addHospitalDetails(
             sampleHospital.hospitalAddress,
             sampleHospital.name,
             sampleHospital.hospitalRegistrationId,
@@ -133,7 +137,7 @@ contract MyriadTest is Test {
 
         emit Events.DiagnosticLabListed(sampleDiagnosticLab);
 
-        myriad.addDiagnosticLabDetails(
+        Myriad(proxy).addDiagnosticLabDetails(
             sampleDiagnosticLab.diagnosticLabAddress,
             sampleDiagnosticLab.name,
             sampleDiagnosticLab.diagnosticLabRegistrationId,
@@ -155,20 +159,22 @@ contract MyriadTest is Test {
         );
 
     function test_RevertClinicCannotBeAdded() external {
+        // vm.startPrank(address(0x0));
         vm.expectEmit(true, true, true, true);
 
         emit Events.ClinicListed(sampleClinic);
 
-        myriad.addClinicDetails(
+        Myriad(proxy).addClinicDetails(
             sampleClinic.clinicAddress,
             sampleClinic.name,
             sampleClinic.clinicRegistrationId,
             sampleClinic.email,
             sampleClinic.phoneNumber
         );
+        // vm.stopPrank();
     }
 
-    // Add Patient Details: All the tests are independent and they should have no dependency on each other. 
+    // Add Patient Details: All the tests are independent and they should have no dependency on each other.
     address patientAddress = samplePatient.patientAddress;
     uint16 category = 0;
     string ipfsHash = "qmazkcwaekwedrtnvfhrxabyewtjdxhnjpl1uykybe5zab";
@@ -176,7 +182,7 @@ contract MyriadTest is Test {
     function test_RevertPatientDetailsCannotBeAdded() external {
         // Register Patient
         vm.startPrank(address(0x1));
-        myriad.registerPatient(
+        Myriad(proxy).registerPatient(
             samplePatient.patientAddress,
             samplePatient.name,
             samplePatient.dob,
@@ -187,7 +193,7 @@ contract MyriadTest is Test {
         vm.stopPrank();
 
         // Register Doctor
-        myriad.addDoctorDetails(
+        Myriad(proxy).addDoctorDetails(
             sampleDoctor.doctorAddress,
             sampleDoctor.name,
             sampleDoctor.doctorRegistrationId,
@@ -203,8 +209,15 @@ contract MyriadTest is Test {
         vm.expectEmit(true, true, true, true);
         emit Events.PatientListed(samplePatient);
 
-        myriad.addPatientDetails(patientAddress, category, ipfsHash); // adding details to samplePatient
+        Myriad(proxy).addPatientDetails(patientAddress, category, ipfsHash); // adding details to samplePatient
 
         vm.stopPrank();
+    }
+
+    function test_RevertIfCannotInitializeOwner() external view {
+        if (Myriad(proxy).owner() != address(this)) {
+            console.log(Myriad(proxy).owner(), address(this));
+            revert("Owner initialization failed");
+        }
     }
 }

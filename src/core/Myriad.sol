@@ -7,14 +7,25 @@ pragma solidity ^0.8.7;
 /// @dev All function calls are currently implemented without side effects
 
 //imports
+
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {Events} from "../libraries/Events.sol";
+import {Script, console} from "forge-std/Script.sol";
 
 //custom errors
 
-contract Myriad is ReentrancyGuard {
+contract Myriad is
+    ReentrancyGuard,
+    Initializable,
+    OwnableUpgradeable,
+    UUPSUpgradeable,
+    Script
+{
     //Storage Variables
     mapping(address => DataTypes.PatientStruct) private s_patients;
     mapping(address => DataTypes.DoctorStruct) private s_doctors;
@@ -26,12 +37,6 @@ contract Myriad is ReentrancyGuard {
     address private immutable i_owner;
 
     //modifiers
-    modifier onlyOwner() {
-        if (msg.sender != i_owner) {
-            revert Errors.Myriad__NotOwner();
-        }
-        _;
-    }
 
     modifier onlyDoctor(address senderAddress) {
         if (s_doctors[senderAddress].doctorAddress != senderAddress) {
@@ -40,8 +45,14 @@ contract Myriad is ReentrancyGuard {
         _;
     }
 
+    // constructor
     constructor() {
-        i_owner = msg.sender;
+        _disableInitializers();
+    }
+
+    function initialize() public initializer {
+        __Ownable_init(msg.sender); //sets owner to msg.sender
+        __UUPSUpgradeable_init();
     }
 
     //Functions
@@ -143,6 +154,7 @@ contract Myriad is ReentrancyGuard {
             _email,
             _phoneNumber
         );
+        console.log(msg.sender);
 
         s_hospitals[_hospitalAddress] = hospital;
 
@@ -271,6 +283,10 @@ contract Myriad is ReentrancyGuard {
     }
 
     function getOwner() external view returns (address) {
-        return i_owner;
+        return owner();
     }
+
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 }
