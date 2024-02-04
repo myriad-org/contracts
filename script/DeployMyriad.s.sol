@@ -11,7 +11,7 @@ contract DeployMyriad is Script {
         return proxy;
     }
 
-    function deployMyriad() public returns (address) {
+    function deployMyriad() internal returns (address) {
         vm.startBroadcast();
         Myriad myriad = new Myriad(); //Our implementation(logic).Proxy will point here to delegate call/borrow the functions
         ERC1967Proxy proxy = new ERC1967Proxy(address(myriad), "");
