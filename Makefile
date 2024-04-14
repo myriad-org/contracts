@@ -33,14 +33,24 @@ ifeq ($(findstring --network sepolia,$(ARGS)),--network sepolia)
 	NETWORK_ARGS := --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -v
 endif
 
-deploy:
+dep-myriad:
 	@forge script script/DeployMyriad.s.sol:DeployMyriad $(NETWORK_ARGS)
 
-upgrade:
+upgrade-myriad:
 	@forge script script/UpgradeMyriad.s.sol:UpgradeMyriad $(NETWORK_ARGS)
 
-check:
+dep-gov-token:
+	@forge script script/DeployGovernanceToken.s.sol:DeployGovernanceToken $(NETWORK_ARGS)
+
+dep-gov-cont:
+	@forge script script/DeployGovernorContract.s.sol:DeployGovernorContract $(NETWORK_ARGS)
+
+dep-timelock:
+	@forge script script/DeployTimelock.s.sol:DeployTimelock $(NETWORK_ARGS)
+
+check-myriad:
 	@forge script script/Custom.s.sol:Custom $(NETWORK_ARGS)
 
 reg-patient:
 	@forge script script/RegisterPatient.s.sol:RegisterPatient $(NETWORK_ARGS)
+
