@@ -65,11 +65,11 @@ contract Myriad is
     //Functions
     function registerPatient(
         address _patientAddress,
-        string memory _name,
+        string calldata _name,
         uint256 _dob,
-        string memory _phoneNumber,
-        string memory _bloodGroup,
-        string memory _publicKey
+        string calldata _phoneNumber,
+        string calldata _bloodGroup,
+        string calldata _publicKey
     ) external nonReentrant {
         //patients can themselves register to the system.
         if (msg.sender != _patientAddress) {
@@ -104,7 +104,7 @@ contract Myriad is
     function addPatientDetails(
         address _patientAddress,
         uint16 _category,
-        string memory _IpfsHash //This is the IPFS hash of the diagnostic report which contains an IPFS file hash (preferably PDF file)
+        string calldata _IpfsHash //This is the IPFS hash of the diagnostic report which contains an IPFS file hash (preferably PDF file)
     ) external onlyDoctor(msg.sender) nonReentrant {
         if (_category == 0) {
             s_patients[_patientAddress].vaccinationHash.push(_IpfsHash);
@@ -123,9 +123,9 @@ contract Myriad is
     //this will be done using script by the owner
     function addDoctorDetails(
         address _doctorAddress,
-        string memory _name,
-        string memory _doctorRegistrationId,
-        string memory _specialization,
+        string calldata _name,
+        string calldata _doctorRegistrationId,
+        string calldata _specialization,
         address _hospitalAddress
     ) external onlyOwner nonReentrant {
         DataTypes.DoctorStruct memory doctor = s_doctors[_doctorAddress];
@@ -147,10 +147,10 @@ contract Myriad is
     //this will be done using script by the owner
     function addHospitalDetails(
         address _hospitalAddress,
-        string memory _name,
-        string memory _hospitalRegistrationId,
-        string memory _email,
-        string memory _phoneNumber
+        string calldata _name,
+        string calldata _hospitalRegistrationId,
+        string calldata _email,
+        string calldata _phoneNumber
     ) external onlyOwner nonReentrant {
         DataTypes.HospitalStruct memory hospital = s_hospitals[
             _hospitalAddress
@@ -174,10 +174,10 @@ contract Myriad is
     //this will be done using script by the owner
     function addClinicDetails(
         address _clinicAddress,
-        string memory _name,
-        string memory _clinicRegistrationId,
-        string memory _email,
-        string memory _phoneNumber
+        string calldata _name,
+        string calldata _clinicRegistrationId,
+        string calldata _email,
+        string calldata _phoneNumber
     ) external onlyOwner nonReentrant {
         DataTypes.ClinicStruct memory clinic = s_clinic[_clinicAddress];
         clinic = DataTypes.ClinicStruct(
@@ -198,10 +198,10 @@ contract Myriad is
     //this will be done using script by the owner
     function addDiagnosticLabDetails(
         address _diagnosticLabAddress,
-        string memory _name,
-        string memory _diagnosticLabRegistrationId,
-        string memory _email,
-        string memory _phoneNumber
+        string calldata _name,
+        string calldata _diagnosticLabRegistrationId,
+        string calldata _email,
+        string calldata _phoneNumber
     ) external onlyOwner nonReentrant {
         DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[
             _diagnosticLabAddress
@@ -219,14 +219,6 @@ contract Myriad is
 
         //emitting the event.
         emit Events.DiagnosticLabListed(diagnosticLab);
-    }
-
-    function getMyDetails()
-        external
-        view
-        returns (DataTypes.PatientStruct memory)
-    {
-        return s_patients[msg.sender];
     }
 
     //authorized doctor viewing patient's records
