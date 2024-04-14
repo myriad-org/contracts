@@ -27,10 +27,10 @@ format :; forge fmt
 
 anvil :; anvil -m 'test test test test test test test test test test test junk' --steps-tracing --block-time 1
 
-NETWORK_ARGS := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) --broadcast
+NETWORK_ARGS := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) --broadcast -v
 
 ifeq ($(findstring --network sepolia,$(ARGS)),--network sepolia)
-	NETWORK_ARGS := --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvvv
+	NETWORK_ARGS := --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -v
 endif
 
 deploy:
@@ -38,3 +38,9 @@ deploy:
 
 upgrade:
 	@forge script script/UpgradeMyriad.s.sol:UpgradeMyriad $(NETWORK_ARGS)
+
+check:
+	@forge script script/Custom.s.sol:Custom $(NETWORK_ARGS)
+
+reg-patient:
+	@forge script script/RegisterPatient.s.sol:RegisterPatient $(NETWORK_ARGS)
