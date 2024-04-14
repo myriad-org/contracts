@@ -28,30 +28,26 @@ contract MyriadTest is Test {
     }
 
     // Patient Registration
-    DataTypes.PatientStruct samplePatient =
-        DataTypes.PatientStruct(
-            "Edward Mark",
-            address(0x1),
-            1031561212, // dob
-            "1235467809", //
-            "O+",
-            "0x1234567890", // public key
-            block.timestamp,
-            new string[](0),
-            new string[](0),
-            new string[](0),
-            new string[](0)
-        );
+    DataTypes.PatientStruct samplePatient = DataTypes.PatientStruct(
+        "Edward Mark",
+        address(0x1),
+        1031561212, // dob
+        "1235467809", //
+        "O+",
+        "0x1234567890", // public key
+        block.timestamp,
+        new string[](0),
+        new string[](0),
+        new string[](0),
+        new string[](0)
+    );
 
     function test_RevertPatientCannotBeRegistered() external {
         vm.startPrank(address(0x1));
 
         vm.expectEmit(true, true, true, true);
 
-        emit Events.PublicKeyListed(
-            samplePatient.patientAddress,
-            samplePatient.publicKey
-        );
+        emit Events.PublicKeyListed(samplePatient.patientAddress, samplePatient.publicKey);
 
         vm.expectEmit(true, true, true, true);
 
@@ -71,15 +67,9 @@ contract MyriadTest is Test {
 
     // Add Doctor
 
-    DataTypes.DoctorStruct sampleDoctor =
-        DataTypes.DoctorStruct(
-            address(0x11),
-            "Dr. Edward Mark",
-            "1235467809",
-            block.timestamp,
-            "Cardiologist",
-            address(0x21)
-        );
+    DataTypes.DoctorStruct sampleDoctor = DataTypes.DoctorStruct(
+        address(0x11), "Dr. Edward Mark", "1235467809", block.timestamp, "Cardiologist", address(0x21)
+    );
 
     function test_RevertDoctorCannotBeAdded() external {
         vm.expectEmit(true, true, true, true);
@@ -97,15 +87,9 @@ contract MyriadTest is Test {
 
     // Add Hospital
 
-    DataTypes.HospitalStruct sampleHospital =
-        DataTypes.HospitalStruct(
-            "Apollo Hospital",
-            address(0x21),
-            block.timestamp,
-            "9345673430",
-            "contactus@apollo.com",
-            "9876543210"
-        );
+    DataTypes.HospitalStruct sampleHospital = DataTypes.HospitalStruct(
+        "Apollo Hospital", address(0x21), block.timestamp, "9345673430", "contactus@apollo.com", "9876543210"
+    );
 
     function test_RevertHospitalCannotBeAdded() external {
         vm.expectEmit(true, true, true, true);
@@ -122,15 +106,9 @@ contract MyriadTest is Test {
 
     // Add DiagnosticLab
 
-    DataTypes.DiagnosticLabStruct sampleDiagnosticLab =
-        DataTypes.DiagnosticLabStruct(
-            address(0x31),
-            "Apollo Diagnostic Lab",
-            "1235467809",
-            block.timestamp,
-            "cardiodiag@apollo.com",
-            "9876543210"
-        );
+    DataTypes.DiagnosticLabStruct sampleDiagnosticLab = DataTypes.DiagnosticLabStruct(
+        address(0x31), "Apollo Diagnostic Lab", "1235467809", block.timestamp, "cardiodiag@apollo.com", "9876543210"
+    );
 
     function test_RevertDiagnosticLabCannotBeAdded() external {
         vm.expectEmit(true, true, true, true);
@@ -148,15 +126,9 @@ contract MyriadTest is Test {
 
     // Add Clinic
 
-    DataTypes.ClinicStruct sampleClinic =
-        DataTypes.ClinicStruct(
-            address(0x41),
-            "Apollo Clinic",
-            "1235467809",
-            block.timestamp,
-            "apolloclinic@apollo.com",
-            "9876543210"
-        );
+    DataTypes.ClinicStruct sampleClinic = DataTypes.ClinicStruct(
+        address(0x41), "Apollo Clinic", "1235467809", block.timestamp, "apolloclinic@apollo.com", "9876543210"
+    );
 
     function test_RevertClinicCannotBeAdded() external {
         // vm.startPrank(address(0x0));

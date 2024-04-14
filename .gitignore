@@ -12,3 +12,11 @@ docs/
 
 # Dotenv file
 .env
+
+# personal notes
+notes.md
+
+# common
+.DS_Store
+.gas-snapshot
+

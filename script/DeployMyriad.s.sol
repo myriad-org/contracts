@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Script} from "forge-std/Script.sol";
+import {Script, console} from "forge-std/Script.sol";
 import {Myriad} from "../src/core/Myriad.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
@@ -13,8 +13,11 @@ contract DeployMyriad is Script {
 
     function deployMyriad() internal returns (address) {
         vm.startBroadcast();
-        Myriad myriad = new Myriad(); //Our implementation(logic).Proxy will point here to delegate call/borrow the functions
-        ERC1967Proxy proxy = new ERC1967Proxy(address(myriad), "");
+        Myriad myriad = new Myriad(); //Our implementation(logic). Proxy will point here to delegate call/borrow the functions
+        ERC1967Proxy proxy = new ERC1967Proxy(
+            address(myriad),
+            abi.encodeWithSignature("initialize()") // initialize the logic contract
+        );
         vm.stopBroadcast();
         return address(proxy);
     }

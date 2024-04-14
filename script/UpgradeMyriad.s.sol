@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Script} from "forge-std/Script.sol";
 import {Myriad} from "src/core/Myriad.sol";
-import {Myriad as MyriadV2} from "src/core/Myriad.sol";
+import {Myriad as Myriad2} from "src/core/Myriad2.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 
@@ -13,11 +13,12 @@ contract UpgradeMyriad is Script {
             .get_most_recent_deployment("ERC1967Proxy", block.chainid);
 
         vm.startBroadcast();
-        MyriadV2 myriadv2 = new MyriadV2();
+        Myriad2 myriad2 = new Myriad2();
         vm.stopBroadcast();
+
         address proxy = upgradeMyriad(
             mostRecentlyDeployedProxy,
-            address(myriadv2)
+            address(myriad2)
         );
         return proxy;
     }
@@ -28,7 +29,10 @@ contract UpgradeMyriad is Script {
     ) internal returns (address) {
         vm.startBroadcast();
         Myriad proxy = Myriad(payable(proxyAddress));
-        proxy.upgradeToAndCall(address(newMyriad), "");
+        proxy.upgradeToAndCall(
+            address(newMyriad),
+            abi.encodeWithSignature("initialize()")
+        );
         vm.stopBroadcast();
         return address(proxy);
     }

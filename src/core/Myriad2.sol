@@ -32,7 +32,7 @@ contract Myriad is
     mapping(address => DataTypes.DiagnosticLabStruct) private s_diagnosticLab;
     mapping(address => string) private s_addressToPublicKey;
 
-    uint64 public constant version = 1;
+    uint64 public constant version = 2;
 
     //modifiers
     modifier onlyDoctor(address senderAddress) {

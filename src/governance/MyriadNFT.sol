@@ -9,6 +9,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721Votes} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MyriadNFT is
     ERC721,
@@ -18,17 +19,19 @@ contract MyriadNFT is
     AccessControl,
     ERC721Burnable,
     EIP712,
-    ERC721Votes
+    ERC721Votes,
+    Ownable
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     uint256 private _nextTokenId;
 
-    constructor(
-        address defaultAdmin,
-        address pauser,
-        address minter
-    ) ERC721("CoVDAO", "CVD") EIP712("CoVDAO", "1") {
+    constructor(address defaultAdmin, address pauser, address minter)
+        ERC721("CoVDAO", "CVD")
+        EIP712("CoVDAO", "1")
+        Ownable(msg.sender)
+    /* is it wrong here to make the msg.sender a owner of the contract??*/
+    {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(PAUSER_ROLE, pauser);
         _grantRole(MINTER_ROLE, minter);
@@ -42,10 +45,7 @@ contract MyriadNFT is
         _unpause();
     }
 
-    function safeMint(
-        address to,
-        string memory uri
-    ) public onlyRole(MINTER_ROLE) {
+    function safeMint(address to, string memory uri) public onlyRole(MINTER_ROLE) {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
@@ -53,11 +53,7 @@ contract MyriadNFT is
 
     // The following functions are overrides required by Solidity.
 
-    function _update(
-        address to,
-        uint256 tokenId,
-        address auth
-    )
+    function _update(address to, uint256 tokenId, address auth)
         internal
         override(ERC721, ERC721Enumerable, ERC721Pausable, ERC721Votes)
         returns (address)
@@ -65,22 +61,18 @@ contract MyriadNFT is
         return super._update(to, tokenId, auth);
     }
 
-    function _increaseBalance(
-        address account,
-        uint128 value
-    ) internal override(ERC721, ERC721Enumerable, ERC721Votes) {
+    function _increaseBalance(address account, uint128 value)
+        internal
+        override(ERC721, ERC721Enumerable, ERC721Votes)
+    {
         super._increaseBalance(account, value);
     }
 
-    function tokenURI(
-        uint256 tokenId
-    ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    )
+    function supportsInterface(bytes4 interfaceId)
         public
         view
         override(ERC721, ERC721Enumerable, ERC721URIStorage, AccessControl)
@@ -88,4 +80,13 @@ contract MyriadNFT is
     {
         return super.supportsInterface(interfaceId);
     }
+
+    // function _beforeTokenTransfer(
+    //     address from,
+    //     address to,
+    //     uint256 tokenId
+    // ) internal override(ERC721, ERC721Votes) {
+    //     require(from == address(0), "Err: token is SOUL BOUND");
+    //     super._beforeTokenTransfer(from, to, tokenId);
+    // }
 }

@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.0;
 
 library DataTypes {
     //Type Declaration
     struct PatientStruct {
         string name; //
-        address patientAddress; //account address of patient
+        address patientAddress;
+        //account address of patient
         uint256 dob; //
         string phoneNumber;
         string bloodGroup; //
-        string publicKey; //for storing public key for encrypting the data
+        string publicKey;
+        //for storing public key for encrypting the data
         uint256 dateOfRegistration; //the date of registration of patient to the system. Tells which records are not in the system.
         //Medical Records
         string[] vaccinationHash; //0
@@ -45,7 +47,7 @@ library DataTypes {
         string email;
         string phoneNumber;
     }
-    
+
     struct ClinicStruct {
         address clinicAddress; //account address of clinic
         string name;
