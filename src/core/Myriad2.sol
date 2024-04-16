@@ -17,13 +17,7 @@ import {Errors} from "../libraries/Errors.sol";
 import {Events} from "../libraries/Events.sol";
 import {Script, console} from "forge-std/Script.sol";
 
-contract Myriad is
-    ReentrancyGuard,
-    Initializable,
-    OwnableUpgradeable,
-    UUPSUpgradeable,
-    Script
-{
+contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgradeable, Script {
     //Storage Variables
     mapping(address => DataTypes.PatientStruct) private s_patients;
     mapping(address => DataTypes.DoctorStruct) private s_doctors;
@@ -58,9 +52,7 @@ contract Myriad is
     }
 
     // necessary overridden check before upgrade
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     //Functions
     function registerPatient(
@@ -130,12 +122,7 @@ contract Myriad is
     ) external onlyOwner nonReentrant {
         DataTypes.DoctorStruct memory doctor = s_doctors[_doctorAddress];
         doctor = DataTypes.DoctorStruct(
-            _doctorAddress,
-            _name,
-            _doctorRegistrationId,
-            block.timestamp,
-            _specialization,
-            _hospitalAddress
+            _doctorAddress, _name, _doctorRegistrationId, block.timestamp, _specialization, _hospitalAddress
         );
 
         s_doctors[_doctorAddress] = doctor;
@@ -152,16 +139,9 @@ contract Myriad is
         string memory _email,
         string memory _phoneNumber
     ) external onlyOwner nonReentrant {
-        DataTypes.HospitalStruct memory hospital = s_hospitals[
-            _hospitalAddress
-        ];
+        DataTypes.HospitalStruct memory hospital = s_hospitals[_hospitalAddress];
         hospital = DataTypes.HospitalStruct(
-            _name,
-            _hospitalAddress,
-            block.timestamp,
-            _hospitalRegistrationId,
-            _email,
-            _phoneNumber
+            _name, _hospitalAddress, block.timestamp, _hospitalRegistrationId, _email, _phoneNumber
         );
         console.log(msg.sender);
 
@@ -180,14 +160,8 @@ contract Myriad is
         string memory _phoneNumber
     ) external onlyOwner nonReentrant {
         DataTypes.ClinicStruct memory clinic = s_clinic[_clinicAddress];
-        clinic = DataTypes.ClinicStruct(
-            _clinicAddress,
-            _name,
-            _clinicRegistrationId,
-            block.timestamp,
-            _email,
-            _phoneNumber
-        );
+        clinic =
+            DataTypes.ClinicStruct(_clinicAddress, _name, _clinicRegistrationId, block.timestamp, _email, _phoneNumber);
 
         s_clinic[_clinicAddress] = clinic;
 
@@ -203,16 +177,9 @@ contract Myriad is
         string memory _email,
         string memory _phoneNumber
     ) external onlyOwner nonReentrant {
-        DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[
-            _diagnosticLabAddress
-        ];
+        DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[_diagnosticLabAddress];
         diagnosticLab = DataTypes.DiagnosticLabStruct(
-            _diagnosticLabAddress,
-            _name,
-            _diagnosticLabRegistrationId,
-            block.timestamp,
-            _email,
-            _phoneNumber
+            _diagnosticLabAddress, _name, _diagnosticLabRegistrationId, block.timestamp, _email, _phoneNumber
         );
 
         s_diagnosticLab[_diagnosticLabAddress] = diagnosticLab;
@@ -221,18 +188,12 @@ contract Myriad is
         emit Events.DiagnosticLabListed(diagnosticLab);
     }
 
-    function getMyDetails()
-        external
-        view
-        returns (DataTypes.PatientStruct memory)
-    {
+    function getMyDetails() external view returns (DataTypes.PatientStruct memory) {
         return s_patients[msg.sender];
     }
 
     //authorized doctor viewing patient's records
-    function getPatientDetails(
-        address _patientAddress
-    ) external view returns (string memory, string memory, uint256) {
+    function getPatientDetails(address _patientAddress) external view returns (string memory, string memory, uint256) {
         return (
             s_patients[_patientAddress].name,
             s_patients[_patientAddress].publicKey,
@@ -240,15 +201,11 @@ contract Myriad is
         );
     }
 
-    function getPublicKey(
-        address _patientAddress
-    ) public view returns (string memory) {
+    function getPublicKey(address _patientAddress) public view returns (string memory) {
         return s_addressToPublicKey[_patientAddress];
     }
 
-    function getDoctorDetails(
-        address _doctorAddress
-    )
+    function getDoctorDetails(address _doctorAddress)
         external
         view
         returns (string memory, string memory, string memory, address)
@@ -261,9 +218,11 @@ contract Myriad is
         );
     }
 
-    function getHospitalDetails(
-        address _hospitalAddress
-    ) external view returns (string memory, string memory, string memory) {
+    function getHospitalDetails(address _hospitalAddress)
+        external
+        view
+        returns (string memory, string memory, string memory)
+    {
         return (
             s_hospitals[_hospitalAddress].name,
             s_hospitals[_hospitalAddress].hospitalRegistrationId,
@@ -271,19 +230,21 @@ contract Myriad is
         );
     }
 
-    function getClinicDetails(
-        address _clinicAddress
-    ) external view returns (string memory, string memory, string memory) {
+    function getClinicDetails(address _clinicAddress)
+        external
+        view
+        returns (string memory, string memory, string memory)
+    {
         return (
-            s_clinic[_clinicAddress].name,
-            s_clinic[_clinicAddress].clinicRegistrationId,
-            s_clinic[_clinicAddress].email
+            s_clinic[_clinicAddress].name, s_clinic[_clinicAddress].clinicRegistrationId, s_clinic[_clinicAddress].email
         );
     }
 
-    function getDiagnosticLabDetails(
-        address _diagnosticLabAddress
-    ) external view returns (string memory, string memory, string memory) {
+    function getDiagnosticLabDetails(address _diagnosticLabAddress)
+        external
+        view
+        returns (string memory, string memory, string memory)
+    {
         return (
             s_diagnosticLab[_diagnosticLabAddress].name,
             s_diagnosticLab[_diagnosticLabAddress].diagnosticLabRegistrationId,

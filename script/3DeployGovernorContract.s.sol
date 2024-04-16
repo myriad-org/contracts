@@ -11,20 +11,12 @@ import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 contract DeployGovernorContract is Script {
     function run() external returns (address) {
         vm.startBroadcast();
-        address governanceTokenAddress = DevOpsTools.get_most_recent_deployment(
-            "GovernanceToken",
-            block.chainid
-        );
+        address governanceTokenAddress = DevOpsTools.get_most_recent_deployment("GovernanceToken", block.chainid);
 
-        address timelockAddress = DevOpsTools.get_most_recent_deployment(
-            "Timelock",
-            block.chainid
-        );
+        address timelockAddress = DevOpsTools.get_most_recent_deployment("Timelock", block.chainid);
 
-        GovernorContract governorContract = new GovernorContract(
-            GovernanceToken(payable(governanceTokenAddress)),
-            Timelock(payable(timelockAddress))
-        ); //Our implementation(logic). Proxy will point here to delegate call/borrow the functions
+        GovernorContract governorContract =
+            new GovernorContract(GovernanceToken(payable(governanceTokenAddress)), Timelock(payable(timelockAddress))); //Our implementation(logic). Proxy will point here to delegate call/borrow the functions
         vm.stopBroadcast();
         return address(governorContract);
     }
