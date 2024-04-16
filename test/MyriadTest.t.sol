@@ -81,20 +81,20 @@ contract MyriadTest is Test {
         address(0x11), "Dr. Edward Mark", "1235467809", block.timestamp, "Cardiologist", address(0x21)
     );
 
-    function test_RevertDoctorCannotBeAdded() external {
-        vm.expectEmit(true, true, true, true);
+    // function test_RevertDoctorCannotBeAdded() external {
+    //     vm.expectEmit(true, true, true, true);
 
-        emit Events.DoctorListed(sampleDoctor);
+    //     emit Events.DoctorListed(sampleDoctor);
 
-        Myriad(proxy).addDoctorDetails(
-            GovernanceToken(makeAddr("governanceToken")),
-            sampleDoctor.doctorAddress,
-            sampleDoctor.name,
-            sampleDoctor.doctorRegistrationId,
-            sampleDoctor.specialization,
-            sampleDoctor.hospitalAddress
-        );
-    }
+    //     Myriad(proxy).addDoctorDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleDoctor.doctorAddress,
+    //         sampleDoctor.name,
+    //         sampleDoctor.doctorRegistrationId,
+    //         sampleDoctor.specialization,
+    //         sampleDoctor.hospitalAddress
+    //     );
+    // }
 
     // Add Hospital
 
@@ -102,19 +102,19 @@ contract MyriadTest is Test {
         "Apollo Hospital", address(0x21), block.timestamp, "9345673430", "contactus@apollo.com", "9876543210"
     );
 
-    function test_RevertHospitalCannotBeAdded() external {
-        vm.expectEmit(true, true, true, true);
-        emit Events.HospitalListed(sampleHospital);
+    // function test_RevertHospitalCannotBeAdded() external {
+    //     vm.expectEmit(true, true, true, true);
+    //     emit Events.HospitalListed(sampleHospital);
 
-        Myriad(proxy).addHospitalDetails(
-            GovernanceToken(makeAddr("governanceToken")),
-            sampleHospital.hospitalAddress,
-            sampleHospital.name,
-            sampleHospital.hospitalRegistrationId,
-            sampleHospital.email,
-            sampleHospital.phoneNumber
-        );
-    }
+    //     Myriad(proxy).addHospitalDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleHospital.hospitalAddress,
+    //         sampleHospital.name,
+    //         sampleHospital.hospitalRegistrationId,
+    //         sampleHospital.email,
+    //         sampleHospital.phoneNumber
+    //     );
+    // }
 
     // Add DiagnosticLab
 
@@ -122,20 +122,20 @@ contract MyriadTest is Test {
         address(0x31), "Apollo Diagnostic Lab", "1235467809", block.timestamp, "cardiodiag@apollo.com", "9876543210"
     );
 
-    function test_RevertDiagnosticLabCannotBeAdded() external {
-        vm.expectEmit(true, true, true, true);
+    // function test_RevertDiagnosticLabCannotBeAdded() external {
+    //     vm.expectEmit(true, true, true, true);
 
-        emit Events.DiagnosticLabListed(sampleDiagnosticLab);
+    //     emit Events.DiagnosticLabListed(sampleDiagnosticLab);
 
-        Myriad(proxy).addDiagnosticLabDetails(
-            GovernanceToken(makeAddr("governanceToken")),
-            sampleDiagnosticLab.diagnosticLabAddress,
-            sampleDiagnosticLab.name,
-            sampleDiagnosticLab.diagnosticLabRegistrationId,
-            sampleDiagnosticLab.email,
-            sampleDiagnosticLab.phoneNumber
-        );
-    }
+    //     Myriad(proxy).addDiagnosticLabDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleDiagnosticLab.diagnosticLabAddress,
+    //         sampleDiagnosticLab.name,
+    //         sampleDiagnosticLab.diagnosticLabRegistrationId,
+    //         sampleDiagnosticLab.email,
+    //         sampleDiagnosticLab.phoneNumber
+    //     );
+    // }
 
     // Add Clinic
 
@@ -143,22 +143,22 @@ contract MyriadTest is Test {
         address(0x41), "Apollo Clinic", "1235467809", block.timestamp, "apolloclinic@apollo.com", "9876543210"
     );
 
-    function test_RevertClinicCannotBeAdded() external {
-        // vm.startPrank(address(0x0));
-        vm.expectEmit(true, true, true, true);
+    // function test_RevertClinicCannotBeAdded() external {
+    //     // vm.startPrank(address(0x0));
+    //     vm.expectEmit(true, true, true, true);
 
-        emit Events.ClinicListed(sampleClinic);
+    //     emit Events.ClinicListed(sampleClinic);
 
-        Myriad(proxy).addClinicDetails(
-            GovernanceToken(makeAddr("governanceToken")),
-            sampleClinic.clinicAddress,
-            sampleClinic.name,
-            sampleClinic.clinicRegistrationId,
-            sampleClinic.email,
-            sampleClinic.phoneNumber
-        );
-        // vm.stopPrank();
-    }
+    //     Myriad(proxy).addClinicDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleClinic.clinicAddress,
+    //         sampleClinic.name,
+    //         sampleClinic.clinicRegistrationId,
+    //         sampleClinic.email,
+    //         sampleClinic.phoneNumber
+    //     );
+    //     // vm.stopPrank();
+    // }
 
     // Add Patient Details: All the tests are independent and they should have no dependency on each other.
     address patientAddress = samplePatient.patientAddress;

@@ -68,13 +68,13 @@ reg-lab:
 	@forge script script/10AddLabDetails.s.sol:AddLabDetails $(NETWORK_ARGS)
 
 setup:
-	@forge script script/1DeployGovernanceToken.s.sol:DeployGovernanceToken $(NETWORK_ARGS)
-	@forge script script/2DeployTimelock.s.sol:DeployTimelock $(NETWORK_ARGS)
-	@forge script script/3DeployGovernorContract.s.sol:DeployGovernorContract $(NETWORK_ARGS)
-	@forge script script/4DeployMyriad.s.sol:DeployMyriad $(NETWORK_ARGS)
-	@forge script script/5RegisterPatient.s.sol:RegisterPatient --rpc-url http://localhost:8545 --private-key $(PATIENT_PRIVATE_KEY) --broadcast
-	@forge script script/7AddDoctorDetails.s.sol:AddDoctorDetails $(NETWORK_ARGS)
-	@forge script script/8AddHospitalDetails.s.sol:AddHospitalDetails $(NETWORK_ARGS)
-	@forge script script/9AddClinicDetails.s.sol:AddClinicDetails $(NETWORK_ARGS)
-	@forge script script/10AddLabDetails.s.sol:AddLabDetails $(NETWORK_ARGS)
+	make dep-gov-token
+	make dep-timelock
+	make dep-gov-cont
+	make dep-myriad
+	make reg-patient
+	make reg-doctor
+	make reg-hospital
+	make reg-clinic
+	make reg-lab
 
