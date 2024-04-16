@@ -16,9 +16,14 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {Events} from "../libraries/Events.sol";
 import {Script, console} from "forge-std/Script.sol";
-import {GovernanceToken} from "../governance/GovernanceToken.sol";
 
-contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgradeable, Script {
+contract Myriad is
+    ReentrancyGuard,
+    Initializable,
+    OwnableUpgradeable,
+    UUPSUpgradeable,
+    Script
+{
     //Storage Variables
     mapping(address => DataTypes.PatientStruct) private s_patients;
     mapping(address => DataTypes.DoctorStruct) private s_doctors;
@@ -53,11 +58,12 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
     }
 
     // necessary overridden check before upgrade
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 
     //Functions
     function registerPatient(
-        GovernanceToken _governanceToken,
         address _patientAddress,
         string calldata _name,
         uint256 _dob,
@@ -88,19 +94,11 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
         s_patients[_patientAddress] = patient;
         s_addressToPublicKey[_patientAddress] = _publicKey;
 
-        // issue the governance token to this patient
-        // make call to the governance token and mint the token for this patient
-        // and delegate the voting power to the patient
-        uint256 tokenId;
-        tokenId = _governanceToken.safeMint(_patientAddress);
-        _governanceToken.delegate(_patientAddress); // delegate voting power.
-
-        console.log("Token issued has id: ", tokenId);
+        console.log("The Patient is registered successfully: ", patient.name);
 
         //emiting the events
         emit Events.PublicKeyListed(_patientAddress, _publicKey);
         emit Events.PatientListed(patient);
-        emit Events.GovernanceTokenMinted(_patientAddress, tokenId);
     }
 
     function addPatientDetails(
@@ -124,7 +122,6 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
 
     //this will be done using script by the owner
     function addDoctorDetails(
-        GovernanceToken _governanceToken,
         address _doctorAddress,
         string calldata _name,
         string calldata _doctorRegistrationId,
@@ -133,53 +130,49 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
     ) external onlyOwner nonReentrant {
         DataTypes.DoctorStruct memory doctor = s_doctors[_doctorAddress];
         doctor = DataTypes.DoctorStruct(
-            _doctorAddress, _name, _doctorRegistrationId, block.timestamp, _specialization, _hospitalAddress
+            _doctorAddress,
+            _name,
+            _doctorRegistrationId,
+            block.timestamp,
+            _specialization,
+            _hospitalAddress
         );
 
         s_doctors[_doctorAddress] = doctor;
 
-        // issue the governance token to this doctor and delegate voting right to this patient.
-        uint256 tokenId;
-        tokenId = _governanceToken.safeMint(_doctorAddress);
-        _governanceToken.delegate(_doctorAddress); // delegate voting power.
-
-        console.log("Token issued has id: ", tokenId);
-
         //emitting the event.
         emit Events.DoctorListed(doctor);
-        emit Events.GovernanceTokenMinted(_doctorAddress, tokenId);
     }
 
     //this will be done using script by the owner
     function addHospitalDetails(
-        GovernanceToken _governanceToken,
         address _hospitalAddress,
         string calldata _name,
         string calldata _hospitalRegistrationId,
         string calldata _email,
         string calldata _phoneNumber
     ) external onlyOwner nonReentrant {
-        DataTypes.HospitalStruct memory hospital = s_hospitals[_hospitalAddress];
+        DataTypes.HospitalStruct memory hospital = s_hospitals[
+            _hospitalAddress
+        ];
         hospital = DataTypes.HospitalStruct(
-            _name, _hospitalAddress, block.timestamp, _hospitalRegistrationId, _email, _phoneNumber
+            _name,
+            _hospitalAddress,
+            block.timestamp,
+            _hospitalRegistrationId,
+            _email,
+            _phoneNumber
         );
+        console.log(msg.sender);
 
         s_hospitals[_hospitalAddress] = hospital;
 
-        uint256 tokenId;
-        tokenId = _governanceToken.safeMint(_hospitalAddress);
-        _governanceToken.delegate(_hospitalAddress); // delegate voting power.
-
-        console.log("Token issued has id: ", tokenId);
-
         //emitting the event.
         emit Events.HospitalListed(hospital);
-        emit Events.GovernanceTokenMinted(_hospitalAddress, tokenId);
     }
 
     //this will be done using script by the owner
     function addClinicDetails(
-        GovernanceToken _governanceToken,
         address _clinicAddress,
         string calldata _name,
         string calldata _clinicRegistrationId,
@@ -187,51 +180,51 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
         string calldata _phoneNumber
     ) external onlyOwner nonReentrant {
         DataTypes.ClinicStruct memory clinic = s_clinic[_clinicAddress];
-        clinic =
-            DataTypes.ClinicStruct(_clinicAddress, _name, _clinicRegistrationId, block.timestamp, _email, _phoneNumber);
+        clinic = DataTypes.ClinicStruct(
+            _clinicAddress,
+            _name,
+            _clinicRegistrationId,
+            block.timestamp,
+            _email,
+            _phoneNumber
+        );
 
         s_clinic[_clinicAddress] = clinic;
 
-        uint256 tokenId;
-        tokenId = _governanceToken.safeMint(_clinicAddress);
-        _governanceToken.delegate(_clinicAddress); // delegate voting power.
-
-        console.log("Token issued has id: ", tokenId);
-
         //emitting the event.
         emit Events.ClinicListed(clinic);
-        emit Events.GovernanceTokenMinted(_clinicAddress, tokenId);
     }
 
     //this will be done using script by the owner
     function addDiagnosticLabDetails(
-        GovernanceToken _governanceToken,
         address _diagnosticLabAddress,
         string calldata _name,
         string calldata _diagnosticLabRegistrationId,
         string calldata _email,
         string calldata _phoneNumber
     ) external onlyOwner nonReentrant {
-        DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[_diagnosticLabAddress];
+        DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[
+            _diagnosticLabAddress
+        ];
         diagnosticLab = DataTypes.DiagnosticLabStruct(
-            _diagnosticLabAddress, _name, _diagnosticLabRegistrationId, block.timestamp, _email, _phoneNumber
+            _diagnosticLabAddress,
+            _name,
+            _diagnosticLabRegistrationId,
+            block.timestamp,
+            _email,
+            _phoneNumber
         );
 
         s_diagnosticLab[_diagnosticLabAddress] = diagnosticLab;
 
-        uint256 tokenId;
-        tokenId = _governanceToken.safeMint(_diagnosticLabAddress);
-        _governanceToken.delegate(_diagnosticLabAddress); // delegate voting power.
-
-        console.log("Token issued has id: ", tokenId);
-
         //emitting the event.
         emit Events.DiagnosticLabListed(diagnosticLab);
-        emit Events.GovernanceTokenMinted(_diagnosticLabAddress, tokenId);
     }
 
     //authorized doctor viewing patient's records
-    function getPatientDetails(address _patientAddress) external view returns (string memory, string memory, uint256) {
+    function getPatientDetails(
+        address _patientAddress
+    ) external view returns (string memory, string memory, uint256) {
         return (
             s_patients[_patientAddress].name,
             s_patients[_patientAddress].publicKey,
@@ -239,11 +232,15 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
         );
     }
 
-    function getPublicKey(address _patientAddress) public view returns (string memory) {
+    function getPublicKey(
+        address _patientAddress
+    ) public view returns (string memory) {
         return s_addressToPublicKey[_patientAddress];
     }
 
-    function getDoctorDetails(address _doctorAddress)
+    function getDoctorDetails(
+        address _doctorAddress
+    )
         external
         view
         returns (string memory, string memory, string memory, address)
@@ -256,11 +253,9 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
         );
     }
 
-    function getHospitalDetails(address _hospitalAddress)
-        external
-        view
-        returns (string memory, string memory, string memory)
-    {
+    function getHospitalDetails(
+        address _hospitalAddress
+    ) external view returns (string memory, string memory, string memory) {
         return (
             s_hospitals[_hospitalAddress].name,
             s_hospitals[_hospitalAddress].hospitalRegistrationId,
@@ -268,21 +263,19 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
         );
     }
 
-    function getClinicDetails(address _clinicAddress)
-        external
-        view
-        returns (string memory, string memory, string memory)
-    {
+    function getClinicDetails(
+        address _clinicAddress
+    ) external view returns (string memory, string memory, string memory) {
         return (
-            s_clinic[_clinicAddress].name, s_clinic[_clinicAddress].clinicRegistrationId, s_clinic[_clinicAddress].email
+            s_clinic[_clinicAddress].name,
+            s_clinic[_clinicAddress].clinicRegistrationId,
+            s_clinic[_clinicAddress].email
         );
     }
 
-    function getDiagnosticLabDetails(address _diagnosticLabAddress)
-        external
-        view
-        returns (string memory, string memory, string memory)
-    {
+    function getDiagnosticLabDetails(
+        address _diagnosticLabAddress
+    ) external view returns (string memory, string memory, string memory) {
         return (
             s_diagnosticLab[_diagnosticLabAddress].name,
             s_diagnosticLab[_diagnosticLabAddress].diagnosticLabRegistrationId,

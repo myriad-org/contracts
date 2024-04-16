@@ -7,8 +7,6 @@ import {Test, console} from "forge-std/Test.sol";
 import {Myriad} from "src/core/Myriad.sol";
 import {DataTypes} from "src/libraries/DataTypes.sol";
 import {Events} from "src/libraries/Events.sol";
-import {GovernanceToken} from "../src/governance/GovernanceToken.sol";
-// import {IERC721} from "./IERC721.sol";
 
 /* @note For Testing Purposes
  * Patient Address: starts from 1
@@ -44,36 +42,28 @@ contract MyriadTest is Test {
         new string[](0)
     );
 
-    // function test_RevertPatientCannotBeRegistered() external {
-    //     vm.startPrank(address(0x1));
+    function test_RevertPatientCannotBeRegistered() external {
+        vm.startPrank(address(0x1));
 
-    //     vm.expectEmit(true, true, true, true);
-    //     emit Events.PublicKeyListed(
-    //         samplePatient.patientAddress,
-    //         samplePatient.publicKey
-    //     );
+        vm.expectEmit(true, true, true, true);
 
-    //     vm.expectEmit(true, true, true, true);
-    //     emit Events.PatientListed(samplePatient);
+        emit Events.PublicKeyListed(samplePatient.patientAddress, samplePatient.publicKey);
 
-    //     vm.expectEmit();
-    //     emit Transfer(address(0x1), address(0x1), 1);
+        vm.expectEmit(true, true, true, true);
 
-    //     vm.expectEmit(true, true, true, true);
-    //     emit Events.GovernanceTokenMinted(samplePatient.patientAddress, 1);
+        emit Events.PatientListed(samplePatient);
 
-    //     Myriad(proxy).registerPatient(
-    //         GovernanceToken(makeAddr("governanceToken")),
-    //         samplePatient.patientAddress,
-    //         samplePatient.name,
-    //         samplePatient.dob,
-    //         samplePatient.phoneNumber,
-    //         samplePatient.bloodGroup,
-    //         samplePatient.publicKey
-    //     );
+        Myriad(proxy).registerPatient(
+            samplePatient.patientAddress,
+            samplePatient.name,
+            samplePatient.dob,
+            samplePatient.phoneNumber,
+            samplePatient.bloodGroup,
+            samplePatient.publicKey
+        );
 
-    //     vm.stopPrank();
-    // }
+        vm.stopPrank();
+    }
 
     // Add Doctor
 
@@ -87,7 +77,6 @@ contract MyriadTest is Test {
         emit Events.DoctorListed(sampleDoctor);
 
         Myriad(proxy).addDoctorDetails(
-            GovernanceToken(makeAddr("governanceToken")),
             sampleDoctor.doctorAddress,
             sampleDoctor.name,
             sampleDoctor.doctorRegistrationId,
@@ -107,7 +96,6 @@ contract MyriadTest is Test {
         emit Events.HospitalListed(sampleHospital);
 
         Myriad(proxy).addHospitalDetails(
-            GovernanceToken(makeAddr("governanceToken")),
             sampleHospital.hospitalAddress,
             sampleHospital.name,
             sampleHospital.hospitalRegistrationId,
@@ -128,7 +116,6 @@ contract MyriadTest is Test {
         emit Events.DiagnosticLabListed(sampleDiagnosticLab);
 
         Myriad(proxy).addDiagnosticLabDetails(
-            GovernanceToken(makeAddr("governanceToken")),
             sampleDiagnosticLab.diagnosticLabAddress,
             sampleDiagnosticLab.name,
             sampleDiagnosticLab.diagnosticLabRegistrationId,
@@ -150,7 +137,6 @@ contract MyriadTest is Test {
         emit Events.ClinicListed(sampleClinic);
 
         Myriad(proxy).addClinicDetails(
-            GovernanceToken(makeAddr("governanceToken")),
             sampleClinic.clinicAddress,
             sampleClinic.name,
             sampleClinic.clinicRegistrationId,
@@ -165,42 +151,40 @@ contract MyriadTest is Test {
     uint16 category = 0;
     string ipfsHash = "qmazkcwaekwedrtnvfhrxabyewtjdxhnjpl1uykybe5zab";
 
-    // function test_RevertPatientDetailsCannotBeAdded() external {
-    //     // Register Patient
-    //     vm.startPrank(address(0x1));
-    //     Myriad(proxy).registerPatient(
-    //         GovernanceToken(makeAddr("governanceToken")),
-    //         samplePatient.patientAddress,
-    //         samplePatient.name,
-    //         samplePatient.dob,
-    //         samplePatient.phoneNumber,
-    //         samplePatient.bloodGroup,
-    //         samplePatient.publicKey
-    //     );
-    //     vm.stopPrank();
+    function test_RevertPatientDetailsCannotBeAdded() external {
+        // Register Patient
+        vm.startPrank(address(0x1));
+        Myriad(proxy).registerPatient(
+            samplePatient.patientAddress,
+            samplePatient.name,
+            samplePatient.dob,
+            samplePatient.phoneNumber,
+            samplePatient.bloodGroup,
+            samplePatient.publicKey
+        );
+        vm.stopPrank();
 
-    //     // Register Doctor
-    //     Myriad(proxy).addDoctorDetails(
-    //         GovernanceToken(makeAddr("governanceToken")),
-    //         sampleDoctor.doctorAddress,
-    //         sampleDoctor.name,
-    //         sampleDoctor.doctorRegistrationId,
-    //         sampleDoctor.specialization,
-    //         sampleDoctor.hospitalAddress
-    //     );
+        // Register Doctor
+        Myriad(proxy).addDoctorDetails(
+            sampleDoctor.doctorAddress,
+            sampleDoctor.name,
+            sampleDoctor.doctorRegistrationId,
+            sampleDoctor.specialization,
+            sampleDoctor.hospitalAddress
+        );
 
-    //     samplePatient.vaccinationHash.push(ipfsHash); // storage variables can only be modified inside a function (as it costs gas and someone has to pay for it.)
+        samplePatient.vaccinationHash.push(ipfsHash); // storage variables can only be modified inside a function (as it costs gas and someone has to pay for it.)
 
-    //     // Doctor adding patient details
-    //     vm.startPrank(address(0x11));
+        // Doctor adding patient details
+        vm.startPrank(address(0x11));
 
-    //     vm.expectEmit(true, true, true, true);
-    //     emit Events.PatientListed(samplePatient);
+        vm.expectEmit(true, true, true, true);
+        emit Events.PatientListed(samplePatient);
 
-    //     Myriad(proxy).addPatientDetails(patientAddress, category, ipfsHash); // adding details to samplePatient
+        Myriad(proxy).addPatientDetails(patientAddress, category, ipfsHash); // adding details to samplePatient
 
-    //     vm.stopPrank();
-    // }
+        vm.stopPrank();
+    }
 
     function test_RevertIfCannotInitializeOwner() external view {
         if (Myriad(proxy).owner() != address(this)) {
