@@ -8,27 +8,30 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
 
-contract GovernanceToken is
-    ERC721,
-    ERC721Pausable,
-    AccessControl,
-    ERC721Burnable,
-    EIP712,
-    ERC721Votes
-{
+// initially a simple erc-721 token with pausable, burnable, and voting capabilities
+// will make it soulbound after testing the basic functionalities and making skeleton.
+contract GovernanceToken is ERC721, ERC721Pausable, AccessControl, ERC721Burnable, EIP712, ERC721Votes {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     uint256 private _nextTokenId;
 
-    constructor(
-        address defaultAdmin,
-        address pauser,
-        address minter
-    ) ERC721("MVTDAO", "MVT") EIP712("MVTDAO", "1") {
+    constructor(address defaultAdmin, address pauser, address minter) ERC721("MVTDAO", "MVT") EIP712("MVTDAO", "1") {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(PAUSER_ROLE, pauser);
         _grantRole(MINTER_ROLE, minter);
     }
+
+    // In order to issue the token to the user, the minter role is required.
+    // Call of this function needs to be restricted to only Myriad smart contract.
+    // so that others can't call this function.
+    // function grantMinterRole(address minter) public {
+    //     _grantRole(MINTER_ROLE, minter);
+    // }
+
+    // // After issuing the token to the user, the minter role is revoked.
+    // function revokeMinterRole(address minter) public {
+    //     _revokeRole(MINTER_ROLE, minter);
+    // }
 
     function _baseURI() internal pure override returns (string memory) {
         return "https://example.com";
@@ -42,9 +45,10 @@ contract GovernanceToken is
         _unpause();
     }
 
-    function safeMint(address to) public onlyRole(MINTER_ROLE) {
+    function safeMint(address to) public returns (uint256) {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
+        return tokenId;
     }
 
     function clock() public view override returns (uint48) {
@@ -57,24 +61,19 @@ contract GovernanceToken is
     }
 
     // The following functions are overrides required by Solidity.
-    function _update(
-        address to,
-        uint256 tokenId,
-        address auth
-    ) internal override(ERC721, ERC721Pausable, ERC721Votes) returns (address) {
+    function _update(address to, uint256 tokenId, address auth)
+        internal
+        override(ERC721, ERC721Pausable, ERC721Votes)
+        returns (address)
+    {
         return super._update(to, tokenId, auth);
     }
 
-    function _increaseBalance(
-        address account,
-        uint128 value
-    ) internal override(ERC721, ERC721Votes) {
+    function _increaseBalance(address account, uint128 value) internal override(ERC721, ERC721Votes) {
         super._increaseBalance(account, value);
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(ERC721, AccessControl) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
