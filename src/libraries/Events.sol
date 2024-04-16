@@ -16,4 +16,6 @@ library Events {
     event ClinicListed(DataTypes.ClinicStruct clinic); //added or modified to the mapping
 
     event DiagnosticLabListed(DataTypes.DiagnosticLabStruct clinic); //added or modified to the mapping
+
+    event GovernanceTokenMinted(address _patientAddress, uint256 tokenId);
 }
