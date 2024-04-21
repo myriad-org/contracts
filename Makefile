@@ -67,6 +67,12 @@ reg-clinic:
 reg-lab:
 	@forge script script/10AddLabDetails.s.sol:AddLabDetails $(NETWORK_ARGS)
 
+create-prop:
+	@forge script script/11CreateProposal.s.sol:CreateProposal --rpc-url http://localhost:8545 --private-key $(DOCTOR_PRIVATE_KEY) --broadcast --skip-simulation
+
+vote-prop:
+	@forge script script/12VoteProposal.s.sol:VoteProposal --rpc-url http://localhost:8545 --private-key $(PATIENT_PRIVATE_KEY) --broadcast --skip-simulation
+
 setup:
 	make dep-gov-token
 	make dep-timelock
@@ -77,4 +83,5 @@ setup:
 	make reg-hospital
 	make reg-clinic
 	make reg-lab
+	make create-prop
 
