@@ -1,88 +1,36 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: MIT
+// Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
-// initially a simple erc-721 token with pausable, burnable, and voting capabilities
-// will make it soulbound after testing the basic functionalities and making skeleton.
-contract GovernanceToken is ERC721, ERC721Pausable, AccessControl, ERC721Burnable, EIP712, ERC721Votes {
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    uint256 private _nextTokenId;
+/// @custom:security-contact sadityakumar9211@gmail.com
+contract GovernanceToken is ERC20, ERC20Burnable, Ownable, ERC20Permit, ERC20Votes {
+    constructor(address initialOwner) ERC20("Myriad Token", "MYT") Ownable(initialOwner) ERC20Permit("Myriad Token") {}
 
-    constructor(address defaultAdmin, address pauser, address minter) ERC721("MVTDAO", "MVT") EIP712("MVTDAO", "1") {
-        _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
-        _grantRole(PAUSER_ROLE, pauser);
-        _grantRole(MINTER_ROLE, minter);
+    // Can only be called by Myriad (ERC1967Proxy of Myriad)
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
     }
 
-    // In order to issue the token to the user, the minter role is required.
-    // Call of this function needs to be restricted to only Myriad smart contract.
-    // so that others can't call this function.
-    // function grantMinterRole(address minter) public {
-    //     _grantRole(MINTER_ROLE, minter);
-    // }
-
-    // // After issuing the token to the user, the minter role is revoked.
-    // function revokeMinterRole(address minter) public {
-    //     _revokeRole(MINTER_ROLE, minter);
-    // }
-
-    function _baseURI() internal pure override returns (string memory) {
-        return "https://example.com";
+    function delegate(address from, address to) public onlyOwner {
+        _delegate(from, to);
     }
 
-    function pause() public onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    function unpause() public onlyRole(PAUSER_ROLE) {
-        _unpause();
-    }
-
-    function safeMint(address to) public returns (uint256) {
-        uint256 tokenId = _nextTokenId++;
-        _safeMint(to, tokenId);
-        return tokenId;
-    }
-
-    function clock() public view override returns (uint48) {
-        return uint48(block.timestamp);
-    }
-
-    // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public pure override returns (string memory) {
-        return "mode=timestamp";
+    function decimals() public pure override returns (uint8) {
+        return 0;
     }
 
     // The following functions are overrides required by Solidity.
-    function _update(address to, uint256 tokenId, address auth)
-        internal
-        override(ERC721, ERC721Pausable, ERC721Votes)
-        returns (address)
-    {
-        return super._update(to, tokenId, auth);
+    function _update(address from, address to, uint256 value) internal override(ERC20, ERC20Votes) {
+        super._update(from, to, value);
     }
 
-    function _increaseBalance(address account, uint128 value) internal override(ERC721, ERC721Votes) {
-        super._increaseBalance(account, value);
+    function nonces(address owner) public view override(ERC20Permit, Nonces) returns (uint256) {
+        return super.nonces(owner);
     }
-
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, AccessControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
-    }
-
-    // function _beforeTokenTransfer(
-    //     address from,
-    //     address to,
-    //     uint256 tokenId
-    // ) internal override(ERC721, ERC721Votes) {
-    //     require(from == address(0), "Err: token is SOUL BOUND");
-    //     super._beforeTokenTransfer(from, to, tokenId);
-    // }
 }

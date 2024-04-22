@@ -19,17 +19,11 @@ contract CreateProposal is Script {
     // This creates proposal and rolls the block to the voting period and
     // makes proposal state to active
     function run() external {
-        address myriadProxyAddress = DevOpsTools.get_most_recent_deployment(
-            "ERC1967Proxy",
-            block.chainid
-        );
+        address myriadProxyAddress = DevOpsTools.get_most_recent_deployment("ERC1967Proxy", block.chainid);
 
-        address governorContractAddress = DevOpsTools
-            .get_most_recent_deployment("GovernorContract", block.chainid);
+        address governorContractAddress = DevOpsTools.get_most_recent_deployment("GovernorContract", block.chainid);
 
-        GovernorContract governor = GovernorContract(
-            payable(governorContractAddress)
-        );
+        GovernorContract governor = GovernorContract(payable(governorContractAddress));
 
         vm.startBroadcast();
 
@@ -56,11 +50,7 @@ contract CreateProposal is Script {
         // Voting on Proposal
         console.log("-----Voting on Proposal -----");
         console.log("2Proposal State: ", uint8(governor.state(proposalId)));
-        uint256 weight = governor.castVoteWithReason(
-            proposalId,
-            voteWay,
-            reason
-        );
+        uint256 weight = governor.castVoteWithReason(proposalId, voteWay, reason);
         console.log("3Vote Weight: ", weight);
         // console.log("Proposal State: ", uint8(governor.state(proposalId)));
         console.log("4Voted successfully");

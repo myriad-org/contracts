@@ -16,14 +16,7 @@ contract AddLabDetails is Script {
         vm.startBroadcast();
         Myriad proxy = Myriad(payable(proxyAddress));
 
-        proxy.addDiagnosticLabDetails(
-            GovernanceToken(governanceTokenAddress),
-            0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,
-            "test-lab",
-            "lab1",
-            "lab1@lab1.com",
-            "9191919191"
-        );
+        proxy.registerDiagnosticLab(0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc, "test-lab-info", true);
         vm.stopBroadcast();
     }
 }

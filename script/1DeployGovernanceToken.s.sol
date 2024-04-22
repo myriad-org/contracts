@@ -9,7 +9,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 contract DeployGovernanceToken is Script {
     function run() external returns (address) {
         vm.startBroadcast();
-        GovernanceToken governanceToken = new GovernanceToken(msg.sender, msg.sender, address(0));
+        GovernanceToken governanceToken = new GovernanceToken(msg.sender);
         vm.stopBroadcast();
         return address(governanceToken);
     }

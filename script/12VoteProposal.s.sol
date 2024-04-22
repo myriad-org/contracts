@@ -13,18 +13,14 @@ contract VoteProposal is Script {
     uint256 public constant VOTING_PERIOD = 25; // how many seconds the proposal is active
     string reason = "cuz blue frog is cool";
     uint8 voteWay = 1; // voting yes
-    uint256 proposalId =
-        113413527849118946908170876607229112009022536516111042163250246188940866726140;
+    uint256 proposalId = 113413527849118946908170876607229112009022536516111042163250246188940866726140;
 
     // This creates proposal and rolls the block to the voting period and
     // makes proposal state to active
     function run() external {
-        address governorContractAddress = DevOpsTools
-            .get_most_recent_deployment("GovernorContract", block.chainid);
+        address governorContractAddress = DevOpsTools.get_most_recent_deployment("GovernorContract", block.chainid);
 
-        GovernorContract governor = GovernorContract(
-            payable(governorContractAddress)
-        );
+        GovernorContract governor = GovernorContract(payable(governorContractAddress));
 
         console.log("\n----- Vote on Proposal -----");
         vm.startBroadcast();
@@ -34,11 +30,7 @@ contract VoteProposal is Script {
         vm.roll(block.timestamp + VOTING_DELAY + 1);
 
         console.log("2Proposal State: ", uint8(governor.state(proposalId)));
-        uint256 weight = governor.castVoteWithReason(
-            proposalId,
-            voteWay,
-            reason
-        );
+        uint256 weight = governor.castVoteWithReason(proposalId, voteWay, reason);
         console.log("3Vote Weight: ", weight);
         // console.log("Proposal State: ", uint8(governor.state(proposalId)));
         console.log("4Voted successfully");

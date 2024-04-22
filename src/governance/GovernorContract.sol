@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+// This contract is no longer needed as it is replaced we will be using Aragon.
 pragma solidity ^0.8.20;
 
 import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";

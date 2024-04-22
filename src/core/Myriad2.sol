@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 /// @title A smart contract supporting the Decentralized Patient Medical Record System
 /// @author Aditya Kumar Singh @ 2024
-/// @dev All function calls are currently implemented without side effects
+/// @dev Token Distribution at the time of registration: Patient: 1 token, Doctor: 2 tokens, Clinic: 3 tokens, Diagnostic Lab: 3 tokens, Hospital: 4 tokens
 
 //imports
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -16,17 +16,32 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {Events} from "../libraries/Events.sol";
 import {Script, console} from "forge-std/Script.sol";
+import {GovernanceToken} from "../governance/GovernanceToken.sol";
 
 contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgradeable, Script {
+    uint64 public constant version = 2;
     //Storage Variables
     mapping(address => DataTypes.PatientStruct) private s_patients;
     mapping(address => DataTypes.DoctorStruct) private s_doctors;
     mapping(address => DataTypes.HospitalStruct) private s_hospitals;
     mapping(address => DataTypes.ClinicStruct) private s_clinic;
     mapping(address => DataTypes.DiagnosticLabStruct) private s_diagnosticLab;
-    mapping(address => string) private s_addressToPublicKey;
+    // mapping(address => string) private s_addressToPublicKey;
 
-    uint64 public constant version = 2;
+    // For debugging purposes
+    uint8 public num;
+
+    function store(uint8 _num) public onlyOwner {
+        num = _num;
+    }
+
+    function retrieve() public view returns (uint8) {
+        return num;
+    }
+
+    // Governance Token Address for Decentralized Voting
+    address private governanceTokenAddress;
+    GovernanceToken _governanceToken = GovernanceToken(governanceTokenAddress);
 
     //modifiers
     modifier onlyDoctor(address senderAddress) {
@@ -46,7 +61,8 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
         _disableInitializers();
     }
 
-    function initialize() public reinitializer(version) {
+    function initialize(address _governanceTokenAddress) public reinitializer(version) {
+        governanceTokenAddress = _governanceTokenAddress;
         __Ownable_init(msg.sender); //sets owner to msg.sender
         __UUPSUpgradeable_init();
     }
@@ -54,207 +70,188 @@ contract Myriad is ReentrancyGuard, Initializable, OwnableUpgradeable, UUPSUpgra
     // necessary overridden check before upgrade
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    //Functions
-    function registerPatient(
-        address _patientAddress,
-        string memory _name,
-        uint256 _dob,
-        string memory _phoneNumber,
-        string memory _bloodGroup,
-        string memory _publicKey
-    ) external nonReentrant {
-        //patients can themselves register to the system.
+    function mintAndDelegateTokens(address delegatee, uint8 amount) internal {
+        _governanceToken.mint(delegatee, amount); // every patient will get exactly one token.
+        _governanceToken.delegate(delegatee); // delegate voting power.
+        emit Events.GovernanceTokenMintedAndDelegated(delegatee, amount);
+    }
+
+    // Functions
+    function registerPatient(address _patientAddress, string calldata _patientInfo, bool _isUpdate)
+        external
+        nonReentrant
+    {
+        // patients can themselves register to the system.
         if (msg.sender != _patientAddress) {
             revert Errors.Myriad__NotPatient();
         }
+        DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
 
-        DataTypes.PatientStruct memory patient;
-        patient = DataTypes.PatientStruct(
-            _name,
-            _patientAddress,
-            _dob,
-            _phoneNumber,
-            _bloodGroup,
-            _publicKey,
-            block.timestamp, //date of registration
-            new string[](0), //0
-            new string[](0), // 1
-            new string[](0), //2
-            new string[](0) //3
-        );
+        // revert if patient already exists, unless it's update transaction
+        if (patient.isValid == true && _isUpdate == false) {
+            revert Errors.Myriad__PatientAlreadyRegistered();
+        }
+        patient = DataTypes.PatientStruct(_patientAddress, _patientInfo, true);
 
         s_patients[_patientAddress] = patient;
-        s_addressToPublicKey[_patientAddress] = _publicKey;
 
-        console.log("The Patient is registered successfully: ", patient.name);
+        // minting and delegating voting power to the patient.
+        mintAndDelegateTokens(_patientAddress, 1); // every patient will get exactly one token.
 
-        //emiting the events
-        emit Events.PublicKeyListed(_patientAddress, _publicKey);
-        emit Events.PatientListed(patient);
+        // emitting the event.
+        emit Events.PatientListed(_patientAddress, _patientInfo, block.timestamp);
     }
 
-    function addPatientDetails(
-        address _patientAddress,
-        uint16 _category,
-        string memory _IpfsHash //This is the IPFS hash of the diagnostic report which contains an IPFS file hash (preferably PDF file)
-    ) external onlyDoctor(msg.sender) nonReentrant {
-        if (_category == 0) {
-            s_patients[_patientAddress].vaccinationHash.push(_IpfsHash);
-        } else if (_category == 1) {
-            s_patients[_patientAddress].accidentHash.push(_IpfsHash);
-        } else if (_category == 2) {
-            s_patients[_patientAddress].chronicHash.push(_IpfsHash);
-        } else if (_category == 3) {
-            s_patients[_patientAddress].acuteHash.push(_IpfsHash);
+    /// @dev This updates the patient information and intended to be called by doctors.
+    /// @dev It is protected by {{onlyDoctor}} modifier.
+    /// @dev If _isUpdate is false, then it will revert if patient already exists.
+    function addPatientDetails(address _patientAddress, string calldata _patientInfo, bool _isUpdate)
+        external
+        onlyDoctor(msg.sender)
+        nonReentrant
+    {
+        DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
+        if (patient.isValid == true && _isUpdate == false) {
+            revert Errors.Myriad__PatientAlreadyRegistered();
         }
 
+        patient = DataTypes.PatientStruct(_patientAddress, _patientInfo, true);
+
         //emitting the event.
-        emit Events.PatientListed(s_patients[_patientAddress]);
+        emit Events.PatientListed(_patientAddress, _patientInfo, block.timestamp);
     }
 
-    //this will be done using script by the owner
-    function addDoctorDetails(
-        address _doctorAddress,
-        string memory _name,
-        string memory _doctorRegistrationId,
-        string memory _specialization,
-        address _hospitalAddress
-    ) external onlyOwner nonReentrant {
+    /// @dev This is protected by {{onlyOwner}} modifier
+    function registerDoctor(address _doctorAddress, string calldata _doctorInfo, bool _isUpdate)
+        external
+        onlyOwner
+        nonReentrant
+    {
         DataTypes.DoctorStruct memory doctor = s_doctors[_doctorAddress];
-        doctor = DataTypes.DoctorStruct(
-            _doctorAddress, _name, _doctorRegistrationId, block.timestamp, _specialization, _hospitalAddress
-        );
+
+        // revert if doctor already exists, unless it's update transaction
+        if (doctor.isValid == true && _isUpdate == false) {
+            revert Errors.Myriad__DoctorAlreadyRegistered();
+        }
+        doctor = DataTypes.DoctorStruct(_doctorAddress, _doctorInfo, true);
 
         s_doctors[_doctorAddress] = doctor;
 
+        mintAndDelegateTokens(_doctorAddress, 2); // every doctor will get exactly 2 tokens.
+
         //emitting the event.
-        emit Events.DoctorListed(doctor);
+        emit Events.DoctorListed(_doctorAddress, _doctorInfo, block.timestamp);
     }
 
-    //this will be done using script by the owner
-    function addHospitalDetails(
-        address _hospitalAddress,
-        string memory _name,
-        string memory _hospitalRegistrationId,
-        string memory _email,
-        string memory _phoneNumber
-    ) external onlyOwner nonReentrant {
+    /// @dev This is protected by {{onlyOwner}} modifier
+    function registerHospital(address _hospitalAddress, string calldata _hospitalInfo, bool _isUpdate)
+        external
+        onlyOwner
+        nonReentrant
+    {
         DataTypes.HospitalStruct memory hospital = s_hospitals[_hospitalAddress];
-        hospital = DataTypes.HospitalStruct(
-            _name, _hospitalAddress, block.timestamp, _hospitalRegistrationId, _email, _phoneNumber
-        );
-        console.log(msg.sender);
+        if (hospital.isValid == true && _isUpdate == false) {
+            revert Errors.Myriad__HospitalAlreadyRegistered();
+        }
+
+        hospital = DataTypes.HospitalStruct(_hospitalAddress, _hospitalInfo, true);
 
         s_hospitals[_hospitalAddress] = hospital;
 
+        // minting and delegating voting power to the hospital.
+        mintAndDelegateTokens(_hospitalAddress, 4); // every hospital will get exactly 4 tokens.
+
         //emitting the event.
-        emit Events.HospitalListed(hospital);
+        emit Events.HospitalListed(_hospitalAddress, _hospitalInfo, block.timestamp);
     }
 
-    //this will be done using script by the owner
-    function addClinicDetails(
-        address _clinicAddress,
-        string memory _name,
-        string memory _clinicRegistrationId,
-        string memory _email,
-        string memory _phoneNumber
-    ) external onlyOwner nonReentrant {
+    /// @dev This is protected by {{onlyOwner}} modifier
+    function registerClinic(address _clinicAddress, string calldata _clinciInfo, bool _isUpdate)
+        external
+        onlyOwner
+        nonReentrant
+    {
         DataTypes.ClinicStruct memory clinic = s_clinic[_clinicAddress];
-        clinic =
-            DataTypes.ClinicStruct(_clinicAddress, _name, _clinicRegistrationId, block.timestamp, _email, _phoneNumber);
+        if (clinic.isValid == true && _isUpdate == false) {
+            revert Errors.Myriad__ClinicAlreadyRegistered();
+        }
+
+        clinic = DataTypes.ClinicStruct(_clinicAddress, _clinciInfo, true);
 
         s_clinic[_clinicAddress] = clinic;
 
+        // minting and delegating voting power to the clinic.
+        mintAndDelegateTokens(_clinicAddress, 3); // every clinic will get exactly 3 tokens.
+
         //emitting the event.
-        emit Events.ClinicListed(clinic);
+        emit Events.ClinicListed(_clinicAddress, _clinciInfo, block.timestamp);
     }
 
-    //this will be done using script by the owner
-    function addDiagnosticLabDetails(
-        address _diagnosticLabAddress,
-        string memory _name,
-        string memory _diagnosticLabRegistrationId,
-        string memory _email,
-        string memory _phoneNumber
-    ) external onlyOwner nonReentrant {
+    /// @dev This is protected by {{onlyOwner}} modifier.
+    function registerDiagnosticLab(address _diagnosticLabAddress, string calldata _diagnosticLabInfo, bool _isUpdate)
+        external
+        onlyOwner
+        nonReentrant
+    {
         DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[_diagnosticLabAddress];
-        diagnosticLab = DataTypes.DiagnosticLabStruct(
-            _diagnosticLabAddress, _name, _diagnosticLabRegistrationId, block.timestamp, _email, _phoneNumber
-        );
+
+        if (diagnosticLab.isValid == true && _isUpdate == false) {
+            revert Errors.Myriad__DiagnosticLabAlreadyRegistered();
+        }
+
+        diagnosticLab = DataTypes.DiagnosticLabStruct(_diagnosticLabAddress, _diagnosticLabInfo, true);
 
         s_diagnosticLab[_diagnosticLabAddress] = diagnosticLab;
 
+        // minting and delegating voting power to the diagnostic lab.
+        mintAndDelegateTokens(_diagnosticLabAddress, 3); // every diagnostic lab will get exactly 3 tokens.
+
         //emitting the event.
-        emit Events.DiagnosticLabListed(diagnosticLab);
+        emit Events.DiagnosticLabListed(_diagnosticLabAddress, _diagnosticLabInfo, block.timestamp);
     }
 
-    function getMyDetails() external view returns (DataTypes.PatientStruct memory) {
-        return s_patients[msg.sender];
+    /// @dev Returns the details of the patient. The sensitive medical files itself are encrypted.
+    function getPatientDetails(address _patientAddress) external view returns (address, string memory, bool) {
+        DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
+        return (patient.patientAddress, patient.patientInfo, patient.isValid);
     }
 
-    //authorized doctor viewing patient's records
-    function getPatientDetails(address _patientAddress) external view returns (string memory, string memory, uint256) {
-        return (
-            s_patients[_patientAddress].name,
-            s_patients[_patientAddress].publicKey,
-            s_patients[_patientAddress].dateOfRegistration
-        );
+    /// @dev Returns the details of the doctor
+    function getDoctorDetails(address _doctorAddress) external view returns (address, string memory, bool) {
+        DataTypes.DoctorStruct memory doctor = s_doctors[_doctorAddress];
+        return (doctor.doctorAddress, doctor.doctorInfo, doctor.isValid);
     }
 
-    function getPublicKey(address _patientAddress) public view returns (string memory) {
-        return s_addressToPublicKey[_patientAddress];
+    /// @dev Returns the details of the hospital
+    function getHospitalDetails(address _hospitalAddress) external view returns (address, string memory, bool) {
+        DataTypes.HospitalStruct memory hospital = s_hospitals[_hospitalAddress];
+        return (hospital.hospitalAddress, hospital.hospitalInfo, hospital.isValid);
     }
 
-    function getDoctorDetails(address _doctorAddress)
-        external
-        view
-        returns (string memory, string memory, string memory, address)
-    {
-        return (
-            s_doctors[_doctorAddress].name,
-            s_doctors[_doctorAddress].specialization,
-            s_doctors[_doctorAddress].doctorRegistrationId,
-            s_doctors[_doctorAddress].hospitalAddress
-        );
+    /// @dev Returns the details of the clinic
+    function getClinicDetails(address _clinicAddress) external view returns (address, string memory, bool) {
+        DataTypes.ClinicStruct memory clinic = s_clinic[_clinicAddress];
+        return (clinic.clinicAddress, clinic.clinicInfo, clinic.isValid);
     }
 
-    function getHospitalDetails(address _hospitalAddress)
-        external
-        view
-        returns (string memory, string memory, string memory)
-    {
-        return (
-            s_hospitals[_hospitalAddress].name,
-            s_hospitals[_hospitalAddress].hospitalRegistrationId,
-            s_hospitals[_hospitalAddress].email
-        );
-    }
-
-    function getClinicDetails(address _clinicAddress)
-        external
-        view
-        returns (string memory, string memory, string memory)
-    {
-        return (
-            s_clinic[_clinicAddress].name, s_clinic[_clinicAddress].clinicRegistrationId, s_clinic[_clinicAddress].email
-        );
-    }
-
+    /// @dev Returns the details of the diagnostic lab
     function getDiagnosticLabDetails(address _diagnosticLabAddress)
         external
         view
-        returns (string memory, string memory, string memory)
+        returns (address, string memory, bool)
     {
-        return (
-            s_diagnosticLab[_diagnosticLabAddress].name,
-            s_diagnosticLab[_diagnosticLabAddress].diagnosticLabRegistrationId,
-            s_diagnosticLab[_diagnosticLabAddress].email
-        );
+        DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[_diagnosticLabAddress];
+        return (diagnosticLab.diagnosticLabAddress, diagnosticLab.diagnosticLabInfo, diagnosticLab.isValid);
     }
 
     /// @dev The address of the current implementation
     function getImplementation() public view returns (address) {
         address implementation = ERC1967Utils.getImplementation();
         return implementation;
+    }
+
+    /// @dev Returns the address of the governance token
+    function getGovernanceToken() public view returns (address) {
+        return governanceTokenAddress;
     }
 }

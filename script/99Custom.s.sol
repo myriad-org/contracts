@@ -19,7 +19,9 @@ contract Custom is Script {
         console.log("Implementation contract Version: ", proxy.version());
         console.log("Implementation Address: ", proxy.getImplementation());
 
-        string memory name;
+        address actorAddress;
+        string memory actorInfo;
+        bool isValid;
         string memory publicKey;
         uint256 dateOfRegistration;
         address hospitalAddress;
@@ -28,39 +30,38 @@ contract Custom is Script {
 
         // Patient Details
         console.log("\n------System Patient Details-------");
-        (name, publicKey, dateOfRegistration) = proxy.getPatientDetails(0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
-        console.log("Patient name: ", name);
-        console.log("Patient dateOfRegistration: ", dateOfRegistration);
+        (actorAddress, actorInfo, isValid) = proxy.getPatientDetails(0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
+        console.log("Patient Address: ", actorAddress);
+        console.log("Patient Info: ", actorInfo);
+        console.log("Patient isValid: ", isValid);
 
         // Doctor Details
         console.log("\n------System Doctor Details-------");
-        (name, publicKey, registrationId, hospitalAddress) =
-            proxy.getDoctorDetails(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
-        console.log("Doctor name: ", name);
-        console.log("Doctor registrationId: ", registrationId);
-        console.log("Doctor Specialization: ", publicKey); // publicKey is specialization (reuse var)
-        console.log("Doctor hospitalAddress: ", hospitalAddress);
+        (actorAddress, actorInfo, isValid) = proxy.getDoctorDetails(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+        console.log("Doctor Address: ", actorAddress);
+        console.log("Doctor Info: ", actorInfo);
+        console.log("Doctor publicKey: ", isValid);
 
         // Hospital Details
         console.log("\n------System Hospital Details-------");
-        (name, registrationId, email) = proxy.getHospitalDetails(0x90F79bf6EB2c4f870365E785982E1f101E93b906);
-        console.log("Hospital name: ", name);
-        console.log("Hospital registrationId: ", registrationId);
-        console.log("Hospital email: ", email);
+        (actorAddress, actorInfo, isValid) = proxy.getHospitalDetails(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+        console.log("Hospital Address: ", actorAddress);
+        console.log("Hospital Info: ", actorInfo);
+        console.log("Hospital isValid: ", isValid);
 
         // Clinic Details
         console.log("\n------System Clinic Details-------");
-        (name, registrationId, email) = proxy.getClinicDetails(0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65);
-        console.log("Clinic name: ", name);
-        console.log("Clinic registrationId: ", registrationId);
-        console.log("Clinic email: ", email);
+        (actorAddress, actorInfo, isValid) = proxy.getClinicDetails(0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65);
+        console.log("Clinic Address: ", actorAddress);
+        console.log("Clinic Info: ", actorInfo);
+        console.log("Clinic isValid: ", isValid);
 
         // Lab Details
         console.log("\n------System Lab Details-------");
-        (name, registrationId, email) = proxy.getDiagnosticLabDetails(0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc);
-        console.log("Lab name: ", name);
-        console.log("Lab registrationId: ", registrationId);
-        console.log("Lab email: ", email);
+        (actorAddress, actorInfo, isValid) = proxy.getDiagnosticLabDetails(0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc);
+        console.log("Lab Address: ", actorAddress);
+        console.log("Lab Info: ", actorInfo);
+        console.log("Lab isValid: ", isValid);
 
         vm.stopBroadcast();
     }
