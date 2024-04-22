@@ -4,8 +4,12 @@ pragma solidity ^0.8.0;
 import {Script, console} from "forge-std/Script.sol";
 import {Myriad} from "../src/core/Myriad.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 
 contract DeployMyriad is Script {
+    // address governanceTokenAddress = DevOpsTools.get_most_recent_deployment("GovernanceToken", block.chainid);
+    address governanceTokenAddress = 0xDd67f24e1a9bf7Dd0fBB9c06b1d92A6A01aFAC90;
+
     function run() external returns (address) {
         address proxy = deployMyriad();
         return proxy;
@@ -16,7 +20,7 @@ contract DeployMyriad is Script {
         Myriad myriad = new Myriad(); //Our implementation(logic). Proxy will point here to delegate call/borrow the functions
         ERC1967Proxy proxy = new ERC1967Proxy(
             address(myriad),
-            abi.encodeWithSignature("initialize()") // initialize the logic contract
+            abi.encodeWithSignature("initialize(address)", governanceTokenAddress) // initialize the logic contract
         );
         vm.stopBroadcast();
         return address(proxy);

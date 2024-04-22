@@ -16,7 +16,7 @@ contract GovernorContractTest is Test {
     GovernanceToken govToken;
 
     address public USER = makeAddr("user");
-    uint256 public constant INITIAL_SUPPLY = 100 ether;
+    uint8 public constant INITIAL_SUPPLY = 100;
 
     uint256 public constant MIN_DELAY = 3600;
     uint256 public constant VOTING_DELAY = 1; // how many blocks the proposal is active

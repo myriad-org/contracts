@@ -15,5 +15,5 @@ library Events {
 
     event DiagnosticLabListed(address indexed diagnosticLabAddress, string diagnosticLabInfo, uint256 timestamp); //added or modified to the mapping
 
-    event GovernanceTokenMintedAndDelegated(address delegatee, uint8 amount);
+    event GovernanceTokenMintedAndDelegated(address delegatee, uint256 amount);
 }
