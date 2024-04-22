@@ -8,4 +8,9 @@ library Errors {
     error Myriad__NotDoctor();
     error Myriad__NotApproved();
     error Myriad__NotPatient();
+    error Myriad__PatientAlreadyRegistered();
+    error Myriad__DoctorAlreadyRegistered();
+    error Myriad__HospitalAlreadyRegistered();
+    error Myriad__ClinicAlreadyRegistered();
+    error Myriad__DiagnosticLabAlreadyRegistered();
 }

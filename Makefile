@@ -49,7 +49,11 @@ dep-gov-cont:
 dep-timelock:
 	@forge script script/2DeployTimelock.s.sol:DeployTimelock $(NETWORK_ARGS)
 
+tran-own:
+	@forge script script/4_5TransferTokenOwnership.s.sol:TransferTokenOwnership $(NETWORK_ARGS)
+
 check-myriad:
+	@forge script script/99Custom.s.sol:Custom $(NETWORK_ARGS)
 	@forge script script/99Custom.s.sol:Custom $(NETWORK_ARGS)
 
 reg-patient:
@@ -67,7 +71,14 @@ reg-clinic:
 reg-lab:
 	@forge script script/10AddLabDetails.s.sol:AddLabDetails $(NETWORK_ARGS)
 
-setup:
+create-prop:
+	@forge script script/11CreateProposal.s.sol:CreateProposal --rpc-url http://localhost:8545 --private-key $(DOCTOR_PRIVATE_KEY) --broadcast --skip-simulation
+
+vote-prop:
+	@forge script script/12VoteProposal.s.sol:VoteProposal --rpc-url http://localhost:8545 --private-key $(PATIENT_PRIVATE_KEY) --broadcast --skip-simulation
+
+
+setup-local:
 	make dep-gov-token
 	make dep-timelock
 	make dep-gov-cont
@@ -77,4 +88,11 @@ setup:
 	make reg-hospital
 	make reg-clinic
 	make reg-lab
+	make create-prop
+
+s-gov-token:
+	@forge script script/1DeployGovernanceToken.s.sol:DeployGovernanceToken --rpc-url $(SEPOLIA_RPC_URL) --private-key $(DEPLOYER_PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
+
+s-myriad:
+	@forge script script/4DeployMyriad.s.sol:DeployMyriad --rpc-url $(SEPOLIA_RPC_URL) --private-key $(DEPLOYER_PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --ffi
 

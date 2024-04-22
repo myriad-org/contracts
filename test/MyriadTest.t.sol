@@ -8,6 +8,8 @@ import {Myriad} from "src/core/Myriad.sol";
 import {DataTypes} from "src/libraries/DataTypes.sol";
 import {Events} from "src/libraries/Events.sol";
 import {GovernanceToken} from "../src/governance/GovernanceToken.sol";
+import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
+
 // import {IERC721} from "./IERC721.sol";
 
 /* @note For Testing Purposes
@@ -23,26 +25,16 @@ contract MyriadTest is Test {
     // ERC1967Proxy proxy;
     address proxy;
 
+    address governanceTokenAddress = DevOpsTools.get_most_recent_deployment("GovernanceToken", block.chainid);
+
     function setUp() external {
         Myriad myriad = new Myriad();
         proxy = address(new ERC1967Proxy(address(myriad), ""));
-        Myriad(proxy).initialize();
+        Myriad(proxy).initialize(governanceTokenAddress);
     }
 
     // Patient Registration
-    DataTypes.PatientStruct samplePatient = DataTypes.PatientStruct(
-        "Edward Mark",
-        address(0x1),
-        1031561212, // dob
-        "1235467809", //
-        "O+",
-        "0x1234567890", // public key
-        block.timestamp,
-        new string[](0),
-        new string[](0),
-        new string[](0),
-        new string[](0)
-    );
+    DataTypes.PatientStruct samplePatient = DataTypes.PatientStruct(address(0x1), "test-patient-ipfs-info", true);
 
     // function test_RevertPatientCannotBeRegistered() external {
     //     vm.startPrank(address(0x1));
@@ -52,10 +44,32 @@ contract MyriadTest is Test {
     //         samplePatient.patientAddress,
     //         samplePatient.publicKey
     //     );
+    //     vm.expectEmit(true, true, true, true);
+    //     emit Events.PublicKeyListed(
+    //         samplePatient.patientAddress,
+    //         samplePatient.publicKey
+    //     );
 
     //     vm.expectEmit(true, true, true, true);
     //     emit Events.PatientListed(samplePatient);
+    //     vm.expectEmit(true, true, true, true);
+    //     emit Events.PatientListed(samplePatient);
 
+    //     vm.expectEmit();
+    //     emit Transfer(address(0x1), address(0x1), 1);
+
+    //     vm.expectEmit(true, true, true, true);
+    //     emit Events.GovernanceTokenMinted(samplePatient.patientAddress, 1);
+
+    //     Myriad(proxy).registerPatient(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         samplePatient.patientAddress,
+    //         samplePatient.name,
+    //         samplePatient.dob,
+    //         samplePatient.phoneNumber,
+    //         samplePatient.bloodGroup,
+    //         samplePatient.publicKey
+    //     );
     //     vm.expectEmit();
     //     emit Transfer(address(0x1), address(0x1), 1);
 
@@ -77,15 +91,25 @@ contract MyriadTest is Test {
 
     // Add Doctor
 
-    DataTypes.DoctorStruct sampleDoctor = DataTypes.DoctorStruct(
-        address(0x11), "Dr. Edward Mark", "1235467809", block.timestamp, "Cardiologist", address(0x21)
-    );
+    DataTypes.DoctorStruct sampleDoctor = DataTypes.DoctorStruct(address(0x11), "test-doctor-ipfs-info", true);
 
+    // function test_RevertDoctorCannotBeAdded() external {
+    //     vm.expectEmit(true, true, true, true);
     // function test_RevertDoctorCannotBeAdded() external {
     //     vm.expectEmit(true, true, true, true);
 
     //     emit Events.DoctorListed(sampleDoctor);
+    //     emit Events.DoctorListed(sampleDoctor);
 
+    //     Myriad(proxy).addDoctorDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleDoctor.doctorAddress,
+    //         sampleDoctor.name,
+    //         sampleDoctor.doctorRegistrationId,
+    //         sampleDoctor.specialization,
+    //         sampleDoctor.hospitalAddress
+    //     );
+    // }
     //     Myriad(proxy).addDoctorDetails(
     //         GovernanceToken(makeAddr("governanceToken")),
     //         sampleDoctor.doctorAddress,
@@ -98,10 +122,11 @@ contract MyriadTest is Test {
 
     // Add Hospital
 
-    DataTypes.HospitalStruct sampleHospital = DataTypes.HospitalStruct(
-        "Apollo Hospital", address(0x21), block.timestamp, "9345673430", "contactus@apollo.com", "9876543210"
-    );
+    DataTypes.HospitalStruct sampleHospital = DataTypes.HospitalStruct(address(0x21), "test-hospital-ipfs-info", true);
 
+    // function test_RevertHospitalCannotBeAdded() external {
+    //     vm.expectEmit(true, true, true, true);
+    //     emit Events.HospitalListed(sampleHospital);
     // function test_RevertHospitalCannotBeAdded() external {
     //     vm.expectEmit(true, true, true, true);
     //     emit Events.HospitalListed(sampleHospital);
@@ -115,18 +140,38 @@ contract MyriadTest is Test {
     //         sampleHospital.phoneNumber
     //     );
     // }
+    //     Myriad(proxy).addHospitalDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleHospital.hospitalAddress,
+    //         sampleHospital.name,
+    //         sampleHospital.hospitalRegistrationId,
+    //         sampleHospital.email,
+    //         sampleHospital.phoneNumber
+    //     );
+    // }
 
     // Add DiagnosticLab
 
-    DataTypes.DiagnosticLabStruct sampleDiagnosticLab = DataTypes.DiagnosticLabStruct(
-        address(0x31), "Apollo Diagnostic Lab", "1235467809", block.timestamp, "cardiodiag@apollo.com", "9876543210"
-    );
+    DataTypes.DiagnosticLabStruct sampleDiagnosticLab =
+        DataTypes.DiagnosticLabStruct(address(0x31), "test-diagnostic-lab-ipfs-info", true);
 
+    // function test_RevertDiagnosticLabCannotBeAdded() external {
+    //     vm.expectEmit(true, true, true, true);
     // function test_RevertDiagnosticLabCannotBeAdded() external {
     //     vm.expectEmit(true, true, true, true);
 
     //     emit Events.DiagnosticLabListed(sampleDiagnosticLab);
+    //     emit Events.DiagnosticLabListed(sampleDiagnosticLab);
 
+    //     Myriad(proxy).addDiagnosticLabDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleDiagnosticLab.diagnosticLabAddress,
+    //         sampleDiagnosticLab.name,
+    //         sampleDiagnosticLab.diagnosticLabRegistrationId,
+    //         sampleDiagnosticLab.email,
+    //         sampleDiagnosticLab.phoneNumber
+    //     );
+    // }
     //     Myriad(proxy).addDiagnosticLabDetails(
     //         GovernanceToken(makeAddr("governanceToken")),
     //         sampleDiagnosticLab.diagnosticLabAddress,
@@ -139,16 +184,28 @@ contract MyriadTest is Test {
 
     // Add Clinic
 
-    DataTypes.ClinicStruct sampleClinic = DataTypes.ClinicStruct(
-        address(0x41), "Apollo Clinic", "1235467809", block.timestamp, "apolloclinic@apollo.com", "9876543210"
-    );
+    DataTypes.ClinicStruct sampleClinic = DataTypes.ClinicStruct(address(0x41), "test-clinic-ipfs-info", true);
 
+    // function test_RevertClinicCannotBeAdded() external {
+    //     // vm.startPrank(address(0x0));
+    //     vm.expectEmit(true, true, true, true);
     // function test_RevertClinicCannotBeAdded() external {
     //     // vm.startPrank(address(0x0));
     //     vm.expectEmit(true, true, true, true);
 
     //     emit Events.ClinicListed(sampleClinic);
+    //     emit Events.ClinicListed(sampleClinic);
 
+    //     Myriad(proxy).addClinicDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleClinic.clinicAddress,
+    //         sampleClinic.name,
+    //         sampleClinic.clinicRegistrationId,
+    //         sampleClinic.email,
+    //         sampleClinic.phoneNumber
+    //     );
+    //     // vm.stopPrank();
+    // }
     //     Myriad(proxy).addClinicDetails(
     //         GovernanceToken(makeAddr("governanceToken")),
     //         sampleClinic.clinicAddress,
@@ -178,7 +235,29 @@ contract MyriadTest is Test {
     //         samplePatient.publicKey
     //     );
     //     vm.stopPrank();
+    // function test_RevertPatientDetailsCannotBeAdded() external {
+    //     // Register Patient
+    //     vm.startPrank(address(0x1));
+    //     Myriad(proxy).registerPatient(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         samplePatient.patientAddress,
+    //         samplePatient.name,
+    //         samplePatient.dob,
+    //         samplePatient.phoneNumber,
+    //         samplePatient.bloodGroup,
+    //         samplePatient.publicKey
+    //     );
+    //     vm.stopPrank();
 
+    //     // Register Doctor
+    //     Myriad(proxy).addDoctorDetails(
+    //         GovernanceToken(makeAddr("governanceToken")),
+    //         sampleDoctor.doctorAddress,
+    //         sampleDoctor.name,
+    //         sampleDoctor.doctorRegistrationId,
+    //         sampleDoctor.specialization,
+    //         sampleDoctor.hospitalAddress
+    //     );
     //     // Register Doctor
     //     Myriad(proxy).addDoctorDetails(
     //         GovernanceToken(makeAddr("governanceToken")),
@@ -190,15 +269,23 @@ contract MyriadTest is Test {
     //     );
 
     //     samplePatient.vaccinationHash.push(ipfsHash); // storage variables can only be modified inside a function (as it costs gas and someone has to pay for it.)
+    //     samplePatient.vaccinationHash.push(ipfsHash); // storage variables can only be modified inside a function (as it costs gas and someone has to pay for it.)
 
+    //     // Doctor adding patient details
+    //     vm.startPrank(address(0x11));
     //     // Doctor adding patient details
     //     vm.startPrank(address(0x11));
 
     //     vm.expectEmit(true, true, true, true);
     //     emit Events.PatientListed(samplePatient);
+    //     vm.expectEmit(true, true, true, true);
+    //     emit Events.PatientListed(samplePatient);
 
     //     Myriad(proxy).addPatientDetails(patientAddress, category, ipfsHash); // adding details to samplePatient
+    //     Myriad(proxy).addPatientDetails(patientAddress, category, ipfsHash); // adding details to samplePatient
 
+    //     vm.stopPrank();
+    // }
     //     vm.stopPrank();
     // }
 

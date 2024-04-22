@@ -16,14 +16,7 @@ contract AddDoctorDetails is Script {
         vm.startBroadcast();
         Myriad proxy = Myriad(payable(proxyAddress));
 
-        proxy.addDoctorDetails(
-            GovernanceToken(governanceTokenAddress),
-            0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC,
-            "test-doctor",
-            "doc1",
-            "test-specialization",
-            0x90F79bf6EB2c4f870365E785982E1f101E93b906
-        );
+        proxy.registerDoctor(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC, "test-doctor-info", true);
         vm.stopBroadcast();
     }
 }

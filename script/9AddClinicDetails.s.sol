@@ -16,14 +16,7 @@ contract AddClinicDetails is Script {
         vm.startBroadcast();
         Myriad proxy = Myriad(payable(proxyAddress));
 
-        proxy.addClinicDetails(
-            GovernanceToken(governanceTokenAddress),
-            0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,
-            "test-clinic",
-            "clnc1",
-            "clnc1@clnc1.com",
-            "8989898989"
-        );
+        proxy.registerClinic(0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65, "test-clinic-info", true);
         vm.stopBroadcast();
     }
 }

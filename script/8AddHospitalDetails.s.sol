@@ -16,14 +16,7 @@ contract AddHospitalDetails is Script {
         vm.startBroadcast();
         Myriad proxy = Myriad(payable(proxyAddress));
 
-        proxy.addHospitalDetails(
-            GovernanceToken(governanceTokenAddress),
-            0x90F79bf6EB2c4f870365E785982E1f101E93b906,
-            "test-hospital",
-            "hos1",
-            "hos1@hos1.com",
-            "9898989898"
-        );
+        proxy.registerHospital(0x90F79bf6EB2c4f870365E785982E1f101E93b906, "test-hospital-info", true);
         vm.stopBroadcast();
     }
 }

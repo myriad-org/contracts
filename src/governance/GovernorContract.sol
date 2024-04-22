@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+// This contract is no longer needed as it is replaced we will be using Aragon.
 pragma solidity ^0.8.20;
 
 import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
@@ -24,7 +25,7 @@ contract GovernorContract is
         Governor("MyriadGovernor")
         GovernorSettings(2, /* 2 block */ 25, /* 5 minutes */ 0)
         GovernorVotes(_token)
-        GovernorVotesQuorumFraction(23)
+        GovernorVotesQuorumFraction(1) // quorum is 1% of total supply which is 5
         GovernorTimelockControl(_timelock)
     {}
 
