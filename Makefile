@@ -54,6 +54,7 @@ tran-own:
 
 check-myriad:
 	@forge script script/99Custom.s.sol:Custom $(NETWORK_ARGS)
+	@forge script script/99Custom.s.sol:Custom $(NETWORK_ARGS)
 
 reg-patient:
 	@forge script script/5RegisterPatient.s.sol:RegisterPatient --rpc-url http://localhost:8545 --private-key $(PATIENT_PRIVATE_KEY) --broadcast

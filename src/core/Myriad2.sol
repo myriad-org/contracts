@@ -73,9 +73,7 @@ contract Myriad is
     }
 
     // necessary overridden check before upgrade
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function mintAndDelegateTokens(address delegatee, uint256 amount) internal {
         GovernanceToken governanceToken = GovernanceToken(
