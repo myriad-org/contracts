@@ -8,7 +8,7 @@ import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 
 contract DeployMyriad is Script {
     // address governanceTokenAddress = DevOpsTools.get_most_recent_deployment("GovernanceToken", block.chainid);
-    address governanceTokenAddress = 0xDd67f24e1a9bf7Dd0fBB9c06b1d92A6A01aFAC90;
+    address governanceTokenAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
 
     function run() external returns (address) {
         address proxy = deployMyriad();

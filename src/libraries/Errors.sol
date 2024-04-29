@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-library Errors {
+library Error {
     //custom errors
     error Myriad__NotOwner();
     error Myriad__NotDoctor();

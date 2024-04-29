@@ -25,7 +25,11 @@ contract MyriadTest is Test {
     // ERC1967Proxy proxy;
     address proxy;
 
-    address governanceTokenAddress = DevOpsTools.get_most_recent_deployment("GovernanceToken", block.chainid);
+    address governanceTokenAddress =
+        DevOpsTools.get_most_recent_deployment(
+            "GovernanceToken",
+            block.chainid
+        );
 
     function setUp() external {
         Myriad myriad = new Myriad();
@@ -34,7 +38,13 @@ contract MyriadTest is Test {
     }
 
     // Patient Registration
-    DataTypes.PatientStruct samplePatient = DataTypes.PatientStruct(address(0x1), "test-patient-ipfs-info", true);
+    DataTypes.PatientStruct samplePatient =
+        DataTypes.PatientStruct(
+            address(0x1),
+            "test-patient-ipfs-info",
+            block.timestamp,
+            true
+        );
 
     // function test_RevertPatientCannotBeRegistered() external {
     //     vm.startPrank(address(0x1));
@@ -91,7 +101,13 @@ contract MyriadTest is Test {
 
     // Add Doctor
 
-    DataTypes.DoctorStruct sampleDoctor = DataTypes.DoctorStruct(address(0x11), "test-doctor-ipfs-info", true);
+    DataTypes.DoctorStruct sampleDoctor =
+        DataTypes.DoctorStruct(
+            address(0x11),
+            "test-doctor-ipfs-info",
+            block.timestamp,
+            true
+        );
 
     // function test_RevertDoctorCannotBeAdded() external {
     //     vm.expectEmit(true, true, true, true);
@@ -122,7 +138,13 @@ contract MyriadTest is Test {
 
     // Add Hospital
 
-    DataTypes.HospitalStruct sampleHospital = DataTypes.HospitalStruct(address(0x21), "test-hospital-ipfs-info", true);
+    DataTypes.HospitalStruct sampleHospital =
+        DataTypes.HospitalStruct(
+            address(0x21),
+            "test-hospital-ipfs-info",
+            block.timestamp,
+            true
+        );
 
     // function test_RevertHospitalCannotBeAdded() external {
     //     vm.expectEmit(true, true, true, true);
@@ -153,7 +175,12 @@ contract MyriadTest is Test {
     // Add DiagnosticLab
 
     DataTypes.DiagnosticLabStruct sampleDiagnosticLab =
-        DataTypes.DiagnosticLabStruct(address(0x31), "test-diagnostic-lab-ipfs-info", true);
+        DataTypes.DiagnosticLabStruct(
+            address(0x31),
+            "test-diagnostic-lab-ipfs-info",
+            block.timestamp,
+            true
+        );
 
     // function test_RevertDiagnosticLabCannotBeAdded() external {
     //     vm.expectEmit(true, true, true, true);
@@ -184,7 +211,13 @@ contract MyriadTest is Test {
 
     // Add Clinic
 
-    DataTypes.ClinicStruct sampleClinic = DataTypes.ClinicStruct(address(0x41), "test-clinic-ipfs-info", true);
+    DataTypes.ClinicStruct sampleClinic =
+        DataTypes.ClinicStruct(
+            address(0x41),
+            "test-clinic-ipfs-info",
+            block.timestamp,
+            true
+        );
 
     // function test_RevertClinicCannotBeAdded() external {
     //     // vm.startPrank(address(0x0));

@@ -13,7 +13,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {Errors} from "../libraries/Errors.sol";
+import {Error} from "../libraries/Errors.sol";
 import {Events} from "../libraries/Events.sol";
 import {GovernanceToken} from "../governance/GovernanceToken.sol";
 
@@ -49,7 +49,7 @@ contract Myriad is
     //modifiers
     modifier onlyDoctor(address senderAddress) {
         if (s_doctors[senderAddress].doctorAddress != senderAddress) {
-            revert Errors.Myriad__NotDoctor();
+            revert Error.Myriad__NotDoctor();
         }
         _;
     }
@@ -73,7 +73,9 @@ contract Myriad is
     }
 
     // necessary overridden check before upgrade
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 
     function mintAndDelegateTokens(address delegatee, uint256 amount) internal {
         GovernanceToken governanceToken = GovernanceToken(
@@ -92,32 +94,37 @@ contract Myriad is
     ) external nonReentrant {
         // patients can themselves register to the system.
         if (msg.sender != _patientAddress) {
-            revert Errors.Myriad__NotPatient();
+            revert Error.Myriad__NotPatient();
         }
         DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
 
         // revert if patient already exists, unless it's update transaction
         if (patient.isValid == true && _isUpdate == false) {
-            revert Errors.Myriad__PatientAlreadyRegistered();
+            revert Error.Myriad__PatientAlreadyRegistered();
         }
-        patient = DataTypes.PatientStruct(_patientAddress, _patientInfo, true);
 
-        s_patients[_patientAddress] = patient;
+        // minting new tokens when patient is not registered.
+        if (!patient.isValid) {
+            mintAndDelegateTokens(_patientAddress, 1); // every patient will get exactly one token.
+        }
 
-        // minting and delegating voting power to the patient.
-        mintAndDelegateTokens(_patientAddress, 1); // every patient will get exactly one token.
-
-        // emitting the event.
-        emit Events.PatientListed(
+        uint256 timestamp = block.timestamp;
+        patient = DataTypes.PatientStruct(
             _patientAddress,
             _patientInfo,
-            block.timestamp
+            timestamp,
+            true
         );
+        s_patients[_patientAddress] = patient;
+
+        // emitting the event.
+        emit Events.PatientListed(_patientAddress, _patientInfo, timestamp);
     }
 
     /// @dev This updates the patient information and intended to be called by doctors.
     /// @dev It is protected by {{onlyDoctor}} modifier.
     /// @dev If _isUpdate is false, then it will revert if patient already exists.
+    /// @dev Though similar to registerPatient, it is kept separate as it's protected by {{ onlyDoctor }}
     function addPatientDetails(
         address _patientAddress,
         string calldata _patientInfo,
@@ -125,17 +132,19 @@ contract Myriad is
     ) external onlyDoctor(msg.sender) nonReentrant {
         DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
         if (patient.isValid == true && _isUpdate == false) {
-            revert Errors.Myriad__PatientAlreadyRegistered();
+            revert Error.Myriad__PatientAlreadyRegistered();
         }
-
-        patient = DataTypes.PatientStruct(_patientAddress, _patientInfo, true);
-
-        //emitting the event.
-        emit Events.PatientListed(
+        uint256 timestamp = block.timestamp;
+        patient = DataTypes.PatientStruct(
             _patientAddress,
             _patientInfo,
-            block.timestamp
+            patient.timestamp, // not updating the patient registration timestamp.
+            true
         );
+        s_patients[_patientAddress] = patient;
+
+        //emitting the event.
+        emit Events.PatientListed(_patientAddress, _patientInfo, timestamp);
     }
 
     /// @dev This is protected by {{onlyOwner}} modifier
@@ -148,16 +157,25 @@ contract Myriad is
 
         // revert if doctor already exists, unless it's update transaction
         if (doctor.isValid == true && _isUpdate == false) {
-            revert Errors.Myriad__DoctorAlreadyRegistered();
+            revert Error.Myriad__DoctorAlreadyRegistered();
         }
-        doctor = DataTypes.DoctorStruct(_doctorAddress, _doctorInfo, true);
 
+        // minting new tokens when doctor is not registered.
+        if (!doctor.isValid) {
+            mintAndDelegateTokens(_doctorAddress, 2); // every doctor will get exactly 2 tokens.
+        }
+
+        uint256 timestamp = block.timestamp;
+        doctor = DataTypes.DoctorStruct(
+            _doctorAddress,
+            _doctorInfo,
+            timestamp,
+            true
+        );
         s_doctors[_doctorAddress] = doctor;
 
-        mintAndDelegateTokens(_doctorAddress, 2); // every doctor will get exactly 2 tokens.
-
         //emitting the event.
-        emit Events.DoctorListed(_doctorAddress, _doctorInfo, block.timestamp);
+        emit Events.DoctorListed(_doctorAddress, _doctorInfo, timestamp);
     }
 
     /// @dev This is protected by {{onlyOwner}} modifier
@@ -170,26 +188,25 @@ contract Myriad is
             _hospitalAddress
         ];
         if (hospital.isValid == true && _isUpdate == false) {
-            revert Errors.Myriad__HospitalAlreadyRegistered();
+            revert Error.Myriad__HospitalAlreadyRegistered();
         }
 
+        // minting new tokens when hospital is not registered.
+        if (!hospital.isValid) {
+            mintAndDelegateTokens(_hospitalAddress, 4); // every hospital will get exactly 4 tokens.
+        }
+
+        uint256 timestamp = block.timestamp;
         hospital = DataTypes.HospitalStruct(
             _hospitalAddress,
             _hospitalInfo,
+            timestamp,
             true
         );
-
         s_hospitals[_hospitalAddress] = hospital;
 
-        // minting and delegating voting power to the hospital.
-        mintAndDelegateTokens(_hospitalAddress, 4); // every hospital will get exactly 4 tokens.
-
         //emitting the event.
-        emit Events.HospitalListed(
-            _hospitalAddress,
-            _hospitalInfo,
-            block.timestamp
-        );
+        emit Events.HospitalListed(_hospitalAddress, _hospitalInfo, timestamp);
     }
 
     /// @dev This is protected by {{onlyOwner}} modifier
@@ -200,18 +217,25 @@ contract Myriad is
     ) external onlyOwner nonReentrant {
         DataTypes.ClinicStruct memory clinic = s_clinic[_clinicAddress];
         if (clinic.isValid == true && _isUpdate == false) {
-            revert Errors.Myriad__ClinicAlreadyRegistered();
+            revert Error.Myriad__ClinicAlreadyRegistered();
         }
 
-        clinic = DataTypes.ClinicStruct(_clinicAddress, _clinciInfo, true);
+        // minting new tokens when clinic is not registered.
+        if (!clinic.isValid) {
+            mintAndDelegateTokens(_clinicAddress, 3); // every clinic will get exactly 3 tokens. (same as diagnostic lab}
+        }
 
+        uint256 timestamp = block.timestamp;
+        clinic = DataTypes.ClinicStruct(
+            _clinicAddress,
+            _clinciInfo,
+            timestamp,
+            true
+        );
         s_clinic[_clinicAddress] = clinic;
 
-        // minting and delegating voting power to the clinic.
-        mintAndDelegateTokens(_clinicAddress, 3); // every clinic will get exactly 3 tokens.
-
         //emitting the event.
-        emit Events.ClinicListed(_clinicAddress, _clinciInfo, block.timestamp);
+        emit Events.ClinicListed(_clinicAddress, _clinciInfo, timestamp);
     }
 
     /// @dev This is protected by {{onlyOwner}} modifier.
@@ -225,54 +249,68 @@ contract Myriad is
         ];
 
         if (diagnosticLab.isValid == true && _isUpdate == false) {
-            revert Errors.Myriad__DiagnosticLabAlreadyRegistered();
+            revert Error.Myriad__DiagnosticLabAlreadyRegistered();
         }
 
+        // minting new tokens when diagnostic lab is not registered.
+        if (!diagnosticLab.isValid) {
+            mintAndDelegateTokens(_diagnosticLabAddress, 3); // every diagnostic lab will get exactly 3 tokens.
+        }
+
+        uint256 timestamp = block.timestamp;
         diagnosticLab = DataTypes.DiagnosticLabStruct(
             _diagnosticLabAddress,
             _diagnosticLabInfo,
+            timestamp,
             true
         );
-
         s_diagnosticLab[_diagnosticLabAddress] = diagnosticLab;
-
-        // minting and delegating voting power to the diagnostic lab.
-        mintAndDelegateTokens(_diagnosticLabAddress, 3); // every diagnostic lab will get exactly 3 tokens.
 
         //emitting the event.
         emit Events.DiagnosticLabListed(
             _diagnosticLabAddress,
             _diagnosticLabInfo,
-            block.timestamp
+            timestamp
         );
     }
 
     /// @dev Returns the details of the patient. The sensitive medical files itself are encrypted.
     function getPatientDetails(
         address _patientAddress
-    ) external view returns (address, string memory, bool) {
+    ) external view returns (address, string memory, uint256, bool) {
         DataTypes.PatientStruct memory patient = s_patients[_patientAddress];
-        return (patient.patientAddress, patient.patientInfo, patient.isValid);
+        return (
+            patient.patientAddress,
+            patient.patientInfo,
+            patient.timestamp,
+            patient.isValid
+        );
     }
 
     /// @dev Returns the details of the doctor
     function getDoctorDetails(
         address _doctorAddress
-    ) external view returns (address, string memory, bool) {
+    ) external view returns (address, string memory, uint256, bool) {
         DataTypes.DoctorStruct memory doctor = s_doctors[_doctorAddress];
-        return (doctor.doctorAddress, doctor.doctorInfo, doctor.isValid);
+        return (
+            doctor.doctorAddress,
+            doctor.doctorInfo,
+            doctor.timestamp,
+            doctor.isValid
+        );
     }
 
     /// @dev Returns the details of the hospital
     function getHospitalDetails(
         address _hospitalAddress
-    ) external view returns (address, string memory, bool) {
+    ) external view returns (address, string memory, uint256, bool) {
         DataTypes.HospitalStruct memory hospital = s_hospitals[
             _hospitalAddress
         ];
         return (
             hospital.hospitalAddress,
             hospital.hospitalInfo,
+            hospital.timestamp,
             hospital.isValid
         );
     }
@@ -280,21 +318,27 @@ contract Myriad is
     /// @dev Returns the details of the clinic
     function getClinicDetails(
         address _clinicAddress
-    ) external view returns (address, string memory, bool) {
+    ) external view returns (address, string memory, uint256, bool) {
         DataTypes.ClinicStruct memory clinic = s_clinic[_clinicAddress];
-        return (clinic.clinicAddress, clinic.clinicInfo, clinic.isValid);
+        return (
+            clinic.clinicAddress,
+            clinic.clinicInfo,
+            clinic.timestamp,
+            clinic.isValid
+        );
     }
 
     /// @dev Returns the details of the diagnostic lab
     function getDiagnosticLabDetails(
         address _diagnosticLabAddress
-    ) external view returns (address, string memory, bool) {
+    ) external view returns (address, string memory, uint256, bool) {
         DataTypes.DiagnosticLabStruct memory diagnosticLab = s_diagnosticLab[
             _diagnosticLabAddress
         ];
         return (
             diagnosticLab.diagnosticLabAddress,
             diagnosticLab.diagnosticLabInfo,
+            diagnosticLab.timestamp,
             diagnosticLab.isValid
         );
     }
