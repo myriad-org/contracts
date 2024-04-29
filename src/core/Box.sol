@@ -21,11 +21,10 @@ contract Box is Ownable {
     }
 
     // Stores a new value in the contract
-    function storeOwner(int256 newValue) public onlyOwner{
+    function storeOwner(int256 newValue) public onlyOwner {
         value = newValue;
         emit ValueChanged(newValue);
     }
-
 
     // Reads the last stored value
     function retrieve() public view returns (int256) {

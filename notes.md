@@ -45,3 +45,17 @@ upgradeToAndCall(address newImplementation, bytes memory data)
 
 ERC-721 ERROR: Possibly, I am getting a weight of 0 when using _getVotes for some reason, that might be the reason. I am getting nonce too high error too. That could also be a cause. 
 Currently the erc721 token is in erc721-dev branch 
+
+
+
+ -- Optimization --> Unpin previous metadata file when the new file is added or profile is updated
+
+-- pinata can be used in a better way to upload json and handle metadata of json and files. -- see docs
+https://docs.pinata.cloud/api-reference/endpoint/update-file-metadata
+
+
+--> For UI, we can have the list of files in the reverse order of their uploads, i.e. most recent file at the top.
+
+DONE
+--> It's better to store timestamp with block.timestamp as it's accurate and there is a delay b/w proposing the voting (with current timestamp in ipfs) and executing the instruction.
+---> need to refactor the smart contract itself. 

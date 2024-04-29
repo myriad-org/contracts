@@ -70,6 +70,8 @@ contract Custom is Script {
         GovernanceToken governanceToken = GovernanceToken(payable(governanceTokenAddress));
         uint256 totalSupply = governanceToken.totalSupply();
         console.log("Total Supply: ", totalSupply);
+        uint256 votes = governanceToken.getVotes(0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
+        console.log("Votes for registered patient: ", votes);
 
         vm.stopBroadcast();
     }
