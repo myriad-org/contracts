@@ -1,4 +1,5 @@
 # Myriad: Democratising Governance and Medical System
+> Find V1 (MediChain) at: https://github.com/sadityakumar9211/medichain-hardhat
 
 A decentralized system for digitalizing the medical ecosystem where patients can consult doctors, store medical documents securely (e2e encryption), ask the AI chatbots (MedPaLM / ChatGPT), vote on improvement proposals and issues in the existing system, along with doctors and other personnels. This proposes to democratise the medical ecosystem and patients will also have a say in the changes made to the system.
 
