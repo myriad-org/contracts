@@ -1,71 +1,106 @@
-# Myriad: Democratising Governance and Medical System
-> Find V1 (MediChain) at: https://github.com/sadityakumar9211/medichain-hardhat
+# Myriad: Democratizing Governance and Medical System
 
-A decentralized system for digitalizing the medical ecosystem where patients can consult doctors, store medical documents securely (e2e encryption), ask the AI chatbots (MedPaLM / ChatGPT), vote on improvement proposals and issues in the existing system, along with doctors and other personnels. This proposes to democratise the medical ecosystem and patients will also have a say in the changes made to the system.
+> V1 (MediChain) can be found at: [MediChain Repository](https://github.com/sadityakumar9211/medichain-hardhat)
 
-## Foundry
+Myriad is a decentralized platform designed to address critical challenges in healthcare data management and governance. It empowers patients with secure control over their medical records using blockchain and gives them the ability to participate in healthcare governance through Decentralized Autonomous Organizations (DAOs). Myriad leverages decentralized storage (IPFS) and secure encryption to protect patient data, while enabling stakeholders to vote on system improvements.
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This repository houses the core **smart contract logic** developed using **Foundry**.
 
-Foundry consists of:
+## Key Features
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- **Decentralized Data Management**: Patients securely control access to their medical data, which is stored using IPFS with end-to-end encryption (4096-bit RSA).
+- **Governance with DAO**: Patients, doctors, clinics, and other entities participate in a decentralized governance system to vote on proposals related to system improvements.
+- **Blockchain-based Voting**: Weighted voting mechanisms allow for fair decision-making, ensuring transparency and accountability.
+- **Secure Data Sharing**: Patients can share medical data with healthcare providers through encrypted QR codes, ensuring data privacy and security.
 
-## Documentation
+---
 
-https://book.getfoundry.sh/
+## Technology Stack
 
-## Usage
+- **Smart Contracts**: Solidity
+- **Development Framework**: [Foundry](https://book.getfoundry.sh/)
+- **Blockchain**: Ethereum (Sepolia Testnet)
+- **Storage**: IPFS for decentralized file storage
+- **Wallet Integration**: Metamask
 
-### Build
+---
 
-```shell
-$ forge build
+## Getting Started
+
+### Prerequisites
+
+- Install **Foundry** by running:
+  
+  ```bash
+  curl -L https://foundry.paradigm.xyz | bash
+  foundryup
+  ```
+
+### Building the Project
+
+To build the smart contracts, run:
+```bash
+forge build
+```
+### Running Tests
+
+To execute the test suite:
+```bash
+forge test
+```
+### Deploying the Contracts
+
+To deploy the smart contracts, use the following command with your RPC URL and private key:
+```bash
+forge script script/Contract.s.sol:ContractScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```
+### Running a Local Test Node
+
+You can use Anvil to spin up a local Ethereum node:
+```bash
+anvil
+```
+### Usage and Features
+
+	•	Data Management with IPFS: Patient records are stored in encrypted form on IPFS, with hashes recorded on the blockchain.
+	•	DAO Governance: Myriad utilizes a Decentralized Autonomous Organization (DAO) for healthcare governance, where participants vote on system policies and improvements using weighted voting mechanisms.
+	•	Secure Sharing: Medical data can be securely shared using QR codes, ensuring only authorized access.
+
+### Gas Snapshot
+
+For gas analysis and optimization:
+```bash
+forge snapshot
+```
+### Other Commands
+
+	•	Formatting: Run forge fmt to format your Solidity code.
+	•	Help: View help options:
+```bash
+forge --help
+anvil --help
+cast --help
 ```
 
-### Test
 
-```shell
-$ forge test
-```
+## Contributing
 
-### Format
+We welcome contributions from the open-source community! Please follow these steps:
+1.	Fork the repository.
+2.	Create a new branch (git checkout -b feature/new-feature).
+3.	Commit your changes (git commit -m 'Add new feature').
+4.	Push to the branch (git push origin feature/new-feature).
+5.	Open a pull request.
 
-```shell
-$ forge fmt
-```
+## License
 
-### Gas Snapshots
+This project is distributed under the GPL-3.0 License. See the LICENSE file for details.
 
-```shell
-$ forge snapshot
-```
+## Contact
 
-### Anvil
+- Call Me: Aditya Singh
+- Twitter: @saditya9211
+- LinkedIn: linkedin.com/in/saditya9211
+- ETH Address: `0x1EDAFE36Fb88eE4683A9A9525c200bE5Ab8A94F3`
 
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+Project Link: https://github.com/myriad-org
