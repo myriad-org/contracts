@@ -103,4 +103,4 @@ This project is distributed under the GPL-3.0 License. See the LICENSE file for 
 - LinkedIn: linkedin.com/in/saditya9211
 - ETH Address: `0x1EDAFE36Fb88eE4683A9A9525c200bE5Ab8A94F3`
 
-[Detailed project report](https://github.com/myriad-org)
+[Detailed project report](https://bit.ly/project-report-redacted)
